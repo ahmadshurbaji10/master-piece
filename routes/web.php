@@ -18,6 +18,9 @@ use App\Http\Controllers\ContactController;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+Route::get('/admin/profile', function () {
+    return view('admin.profile', ['user' => auth()->user()]);
+})->name('admin.profile')->middleware('auth');
 
 Route::post('/checkout', [CartController::class, 'checkout'])->name('cart.checkout');
 
@@ -106,6 +109,7 @@ Route::middleware(['auth', 'role:vendor'])->group(function () {
 Route::get('/customer/dashboard', [CustomerController::class, 'dashboard'])->name('customer.dashboard');
 Route::put('/customer/profile', [CustomerController::class, 'updateProfile'])->name('customer.profile.update');
 Route::post('/customer/order/{product}', [CustomerController::class, 'orderProduct'])->name('customer.order');
+
 
 
 

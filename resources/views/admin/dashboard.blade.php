@@ -7,6 +7,7 @@
     <!-- ✅ Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
         body {
@@ -58,10 +59,8 @@
                     <i class="fas fa-chevron-down text-gray-500 text-sm"></i>
                 </button>
 
-                <!-- Dropdown -->
                 <div id="dropdownMenu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50">
-                    <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">View Profile</a>
-                    <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Settings</a>
+                    <a class="dropdown-item px-4 py-2 block text-gray-700 hover:bg-gray-100" href="{{ route('admin.profile') }}">View Profile</a>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <button type="submit" class="w-full text-left px-4 py-2 text-red-600 hover:bg-red-100">Logout</button>
@@ -72,6 +71,7 @@
 
         <!-- ✅ Content Area -->
         <div class="p-8 flex-1">
+            <!-- Stats Cards -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <div class="bg-white rounded-xl shadow-md hover:shadow-2xl p-6 text-center transition">
                     <p class="text-gray-500 font-semibold mb-2">Total Products</p>
@@ -91,29 +91,82 @@
                 </div>
             </div>
 
-            <!-- ✅ Page Specific Content -->
-            @yield('content')
-        </div>
-
+            <!-- Chart Section -->
+            <!-- Chart Section -->
+<div class="bg-white rounded-xl shadow-md p-6 mt-4">
+    <h3 class="text-xl font-semibold text-gray-700 mb-4">Statistics Overview</h3>
+    <div class="w-full h-80">
+        <canvas id="overviewBarChart"></canvas>
     </div>
-
 </div>
 
-<!-- ✅ Script for Dropdown Menu -->
+
+            @yield('content')
+        </div>
+    </div>
+</div>
+
+<!-- ✅ Chart.js -->
 <script>
-    const profileButton = document.getElementById('profileButton');
-    const dropdownMenu = document.getElementById('dropdownMenu');
-
-    profileButton.addEventListener('click', () => {
-        dropdownMenu.classList.toggle('hidden');
-    });
-
-    window.addEventListener('click', function(e) {
-        if (!profileButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
-            dropdownMenu.classList.add('hidden');
+    const ctx = document.getElementById('overviewBarChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Products', 'Users', 'Orders', 'Revenue'],
+            datasets: [{
+                label: 'Dashboard Data',
+                data: [
+                    {{ $totalProducts ?? 0 }},
+                    {{ $totalUsers ?? 0 }},
+                    {{ $totalOrders ?? 0 }},
+                    {{ $totalRevenue ?? 0 }}
+                ],
+                backgroundColor: [
+                    'rgba(34, 197, 94, 0.7)',
+                    'rgba(59, 130, 246, 0.7)',
+                    'rgba(139, 92, 246, 0.7)',
+                    'rgba(234, 179, 8, 0.7)'
+                ],
+                borderRadius: 6,
+                borderSkipped: false,
+                barThickness: 40
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (context.parsed.y !== null) {
+                                label += ': ' + context.parsed.y;
+                            }
+                            return label;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        font: { size: 14 }
+                    }
+                },
+                x: {
+                    ticks: {
+                        font: { size: 14 }
+                    }
+                }
+            }
         }
     });
 </script>
+
 
 </body>
 </html>

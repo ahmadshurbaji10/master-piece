@@ -9,7 +9,7 @@ class HomeController extends Controller
     public function index()
     {
         // ✅ جلب آخر 6 منتجات حسب تاريخ الإنشاء
-        $products = Product::latest()->take(6)->get();
+        $products = Product::latest()->take(4)->get();
 
         return view('home', compact('products'));
     }

@@ -1,27 +1,37 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            📄 Product Details
-        </h2>
-    </x-slot>
+@extends('layouts.admin')
 
-    <div class="py-10">
-        <div class="max-w-3xl mx-auto bg-white p-6 rounded shadow">
-            <h3 class="text-2xl font-bold mb-4">{{ $product->name }}</h3>
+@section('content')
+<div class="flex items-center justify-between mb-6">
+    <h2 class="text-2xl font-semibold text-gray-800">
+        📄 Product Details
+    </h2>
+</div>
 
-            <p class="mb-2"><strong>Price:</strong> ${{ $product->price }}</p>
-            <p class="mb-2"><strong>Stock:</strong> {{ $product->stock }}</p>
-            <p class="mb-2"><strong>Expiry Date:</strong> {{ $product->expiry_date }}</p>
-            <p class="mb-2"><strong>Store:</strong> {{ $product->store->name ?? '—' }}</p>
+<div class="bg-white shadow-md rounded-lg p-6 max-w-4xl mx-auto">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
 
+        {{-- Textual Details --}}
+        <div>
+            <h3 class="text-2xl font-bold text-green-700 mb-4">{{ $product->name }}</h3>
+
+            <ul class="space-y-2 text-gray-700">
+                <li><strong>💰 Price:</strong> ${{ $product->price }}</li>
+                <li><strong>📦 Stock:</strong> {{ $product->stock }}</li>
+                <li><strong>📅 Expiry Date:</strong> {{ $product->expiry_date }}</li>
+                <li><strong>🏬 Store:</strong> {{ $product->store->name ?? '—' }}</li>
+            </ul>
+        </div>
+
+        {{-- Product Image --}}
+        <div class="flex justify-center md:justify-end">
             @if($product->image_url)
-                <div class="mt-4">
-                    <img src="{{ asset('storage/' . $product->image_url) }}" alt="{{ $product->name }}"
-                         class="w-48 h-auto rounded shadow-md">
-                </div>
+                <img src="{{ asset('storage/' . $product->image_url) }}"
+                     alt="{{ $product->name }}"
+                     class="rounded-md shadow-md max-h-56 w-auto border border-gray-200">
             @else
-                <p class="text-sm text-gray-500 italic mt-4">No image available.</p>
+                <div class="text-gray-400 italic">No image available.</div>
             @endif
         </div>
     </div>
-</x-app-layout>
+</div>
+@endsection

@@ -49,13 +49,13 @@
                         <td class="px-4 py-3 border text-center">{{ $discount->end_date }}</td>
                         <td class="px-4 py-3 border text-center">
                             <div class="flex justify-center items-center gap-2">
-                                <a href="{{ route('admin.discounts.edit', $discount->id) }}" class="text-blue-600 hover:underline text-sm">
+                                <a href="{{ route('admin.discounts.edit', $discount->id) }}" class="text-blue-600 hover:text-blue-800 text-sm font-medium px-2 py-1 bg-blue-50 rounded hover:bg-blue-100">
                                     Edit
                                 </a>
                                 <form action="{{ route('admin.discounts.destroy', $discount->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Are you sure you want to delete this discount?')">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="text-red-600 hover:underline text-sm">
+                                    <button type="submit" class="text-red-600 hover:text-red-800 text-sm font-medium px-2 py-1 bg-red-50 rounded hover:bg-red-100">
                                         Delete
                                     </button>
                                 </form>

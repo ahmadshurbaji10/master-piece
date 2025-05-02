@@ -4,24 +4,40 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Carbon; // مهم إذا استخدمت Carbon مباشرة
 
 class Product extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['store_id', 'name', 'description', 'price', 'discount_price', 'stock', 'expiry_date', 'image_url'];
+    protected $fillable = [
+        'store_id',
+        'name',
+        'description',
+        'price',
+        'discount_price',
+        'stock',
+        'expiry_date',
+        'image_url'
+    ];
+
+    // ⬇️ علاقات المنتج
 
     public function store()
     {
-        return $this->belongsTo(Store::class); // كل منتج ينتمي إلى متجر معين
+        return $this->belongsTo(Store::class);
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
     }
 
     public function discounts()
     {
-        return $this->hasMany(Discount::class); // كل منتج يمكن أن يحتوي على عدة خصومات
+        return $this->hasMany(Discount::class);
     }
 
+    // ✅ الخصم الفعّال الحالي فقط
     public function discount()
     {
         return $this->hasOne(Discount::class)
@@ -31,17 +47,11 @@ class Product extends Model
 
     public function orderItems()
     {
-        return $this->hasMany(OrderItem::class); // كل منتج يمكن أن يكون جزءًا من عدة طلبات
+        return $this->hasMany(OrderItem::class);
     }
-    public function category()
-{
-    return $this->belongsTo(Category::class);
-}
-// Product.php
-public function reviews()
-{
-    return $this->hasMany(Review::class);
-}
 
-
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
 }

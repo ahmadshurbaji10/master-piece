@@ -1,4 +1,6 @@
-<x-app-layout>
+@extends('layouts.admin')
+
+@section('content')
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             📦 Product Details
@@ -46,4 +48,4 @@
             </div>
         </div>
     </div>
-</x-app-layout>
+    @endsection

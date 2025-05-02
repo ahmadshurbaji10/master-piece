@@ -122,11 +122,6 @@
 	        <div class="container">
 	          <div class="row slider-text justify-content-center align-items-center" data-scrollax-parent="true">
 
-	            <div class="col-md-12 ftco-animate text-center">
-	              <h1 class="mb-2">We serve Fresh Vegestables &amp; Fruits</h1>
-	              <h2 class="subheading mb-4">We deliver organic vegetables &amp; fruits</h2>
-                  <p><a href="{{ url('/shop') }}" class="btn btn-primary">Shop now</a></p>
-	            </div>
 
 	          </div>
 	        </div>
@@ -200,124 +195,92 @@
 			</div>
 		</section>
 
-        <!-- ✅ Section Title -->
-<div class="text-center my-5">
-    <h2 class="text-uppercase font-weight-bold" style="font-size: 28px; color: #82ae46;">
-        Product Categories
-    </h2>
-    <p class="text-muted">Browse items by type to find what you need</p>
-</div>
 
-		<section class="ftco-section ftco-category ftco-no-pt">
+
+       <!-- ✅ CATEGORIES SECTION -->
+<section class="ftco-section bg-light py-5">
     <div class="container">
-        <div class="row">
-            <!-- القسم الكبير 8 أعمدة -->
-            <div class="col-md-8">
-                <div class="row">
-                    <!-- صورة Vegetables بالنص -->
-                    <div class="col-md-6 order-md-last align-items-stretch d-flex">
-                        <div class="category-wrap-2 ftco-animate align-self-stretch d-flex flex-column justify-content-center align-items-center p-4" style="background-color: #f8f9fa;">
-                            <img src="{{ asset('images/category.jpg') }}" alt="Vegetables" class="img-fluid mb-3" style="height: 200px; object-fit: contain;">
-                            <div class="text text-center">
-                                <h2>Vegetables</h2>
-                                <p>Protect the health of every home</p>
-                                <p><a href="{{ url('/shop') }}" class="btn btn-primary">Shop now</a></p>
-                            </div>
+        <div class="text-center mb-5">
+            <h2 class="fw-bold text-success">PRODUCT CATEGORIES</h2>
+            <p class="text-muted">Browse items by type to find what you need</p>
+        </div>
+
+        <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-5 g-4 justify-content-center">
+            @php
+                $categories = [
+                    ['name' => 'grains', 'img' => 'images/OP.jpg'],
+                    ['name' => 'oils', 'img' => 'images/8b6468bd-1a9a-478a-9c0a-abb8fe8daaf4.png'],
+                    ['name' => 'canned', 'img' => 'images/0032894010131-v360-016.jpg'],
+                    ['name' => 'juices', 'img' => 'images/mat.jpg']
+                ];
+            @endphp
+
+            @foreach($categories as $category)
+                <div class="col">
+                    <div class="card shadow-sm border-0 h-100 text-center rounded-3">
+                        <div class="p-3 bg-white d-flex justify-content-center align-items-center" style="height: 180px;">
+                            <img src="{{ asset($category['img']) }}" alt="{{ $category['name'] }}" style="max-height: 100%; object-fit: contain;">
+                        </div>
+                        <div class="card-body">
+                            <h6 class="fw-semibold text-capitalize mb-2">{{ ucfirst($category['name']) }}</h6>
+                            <a href="/shop" class="btn btn-outline-success btn-sm">Shop Now</a>
                         </div>
                     </div>
+                </div>
+            @endforeach
+        </div>
+    </div>
+</section>
 
-                    <!-- الصورتين على اليسار -->
-                    <div class="col-md-6">
-                        <div class="category-wrap ftco-animate mb-4 d-flex align-items-end justify-content-center p-3" style="background-color: #fff;">
-                            <img src="{{ asset('images/OP.jpg') }}" class="img-fluid border rounded shadow-sm" style="height: 200px; object-fit: contain; border-color: #ccc;" alt="Grains">
-                            <div class="text px-3 py-1">
-                                <h2 class="mb-0"><a href="/shop">grains</a></h2>
-                            </div>
-                        </div>
-                        <div class="category-wrap ftco-animate d-flex align-items-end justify-content-center p-3" style="background-color: #fff;">
-                            <img src="{{ asset('images/8b6468bd-1a9a-478a-9c0a-abb8fe8daaf4.png') }}" class="img-fluid border rounded shadow-sm" style="height: 200px; object-fit: contain; border-color: #ccc;" alt="Oils">
-                            <div class="text px-3 py-1">
-                                <h2 class="mb-0"><a href="/shop">oils</a></h2>
+<!-- ✅ PRODUCTS SECTION -->
+<section class="ftco-section py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="text-uppercase fw-bold text-success" style="font-size: 28px;">Our Products</h2>
+            <p class="text-muted">Explore the latest offers on items close to expiry</p>
+        </div>
+
+        <div class="row g-4">
+            @foreach($products as $product)
+                <div class="col-md-6 col-lg-3">
+                    <div class="card h-100 shadow-sm border-0 rounded-3">
+                        <a href="{{ url('shop/'.$product->id) }}" class="bg-white d-flex justify-content-center align-items-center" style="height: 200px;">
+                            <img src="{{ asset('storage/' . $product->image_url) }}" alt="{{ $product->name }}" style="max-height: 90%; object-fit: contain;">
+                        </a>
+
+                        <div class="card-body text-center">
+                            <h6 class="fw-bold text-dark mb-2" style="min-height: 45px;">{{ $product->name }}</h6>
+
+                            @if($product->discount_price)
+                                <p class="mb-2">
+                                    <span class="text-muted text-decoration-line-through">${{ number_format($product->price, 2) }}</span>
+                                    <span class="text-success fw-bold ms-2">${{ number_format($product->discount_price, 2) }}</span>
+                                </p>
+                            @else
+                                <p class="mb-2 text-success fw-bold">${{ number_format($product->price, 2) }}</p>
+                            @endif
+
+                            <div class="d-flex justify-content-center gap-2">
+                                <a href="{{ route('shop.show', $product->id) }}" class="btn btn-outline-success btn-sm">View Details</a>
+                                @auth
+                                    @if(auth()->user()->role === 'customer')
+                                        <form action="{{ route('cart.add', $product->id) }}" method="POST">
+                                            @csrf
+                                            <button type="submit" class="btn btn-outline-success btn-sm">Add to Cart</button>
+                                        </form>
+                                    @endif
+                                @endauth
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <!-- القسم الصغير 4 أعمدة -->
-            <div class="col-md-3">
-                <div class="category-wrap ftco-animate mb-4 d-flex align-items-end justify-content-center p-3" style="background-color: #fff;">
-                    <img src="{{ asset('images/0032894010131-v360-016.jpg') }}" class="img-fluid w-100 border rounded shadow-sm" style="height: 200px; object-fit: contain;" alt="Canned">
-                    <div class="text px-3 py-1">
-                        <h2 class="mb-0"><a href="/shop">canned</a></h2>
-                    </div>
-                </div>
-
-                <div class="category-wrap ftco-animate d-flex align-items-end justify-content-center p-3" style="background-color: #fff;">
-                    <img src="{{ asset('images/mat.jpg') }}" class="img-fluid w-100 border rounded shadow-sm" style="height: 200px; object-fit: contain;" alt="Juices">
-                    <div class="text px-3 py-1">
-                        <h2 class="mb-0"><a href="/shop">juices</a></h2>
-                    </div>
-                </div>
-
-            </div>
+            @endforeach
         </div>
     </div>
 </section>
 
 
-    <section class="ftco-section">
-    	<!-- ✅ Products Section Title -->
-<div class="text-center my-5">
-    <h2 class="text-uppercase font-weight-bold" style="font-size: 28px; color: #82ae46;">
-        Our Products
-    </h2>
-    <p class="text-muted">Explore the latest offers on items close to expiry</p>
-</div>
-
-    	<div class="container">
-    		<div class="row">
-
-    			@foreach($products as $product)
-    <div class="col-md-6 col-lg-3 ftco-animate mb-5">
-        <div class="product shadow-sm rounded overflow-hidden" style="background: #fff;">
-            <a href="{{ url('shop/'.$product->id) }}" class="img-prod d-flex justify-content-center align-items-center" style="background: #f8f9fa; height: 250px;">
-                <img src="{{ asset('storage/' . $product->image_url) }}" alt="{{ $product->name }}"
-                     style="max-height: 90%; max-width: 90%; object-fit: contain;">
-                @if($product->discount_price)
-                    <span class="status">
-                        {{ intval(100 - ($product->discount_price / $product->price) * 100) }}%
-                    </span>
-                @endif
-                <div class="overlay"></div>
-            </a>
-
-            <div class="text py-3 pb-4 px-3 text-center">
-                <h3 class="mb-2" style="min-height: 48px;">
-                    <a href="{{ url('shop/'.$product->id) }}" class="text-dark">{{ $product->name }}</a>
-                </h3>
-
-                <div class="d-flex justify-content-center mb-2">
-                    <div class="pricing">
-                        @if($product->discount_price)
-                            <p class="price">
-                                <span class="mr-2 price-dc">${{ number_format($product->price, 2) }}</span>
-                                <span class="price-sale text-success">${{ number_format($product->discount_price, 2) }}</span>
-                            </p>
-                        @else
-                            <p class="price">
-                                <span class="price-sale">${{ number_format($product->price, 2) }}</span>
-                            </p>
-                        @endif
-                    </div>
-                </div>
-
-                <a href="{{ route('shop.show', $product->id) }}" class="btn btn-outline-success btn-sm mt-2">👁️ View Details</a>
-
-            </div>
-        </div>
-    </div>
-@endforeach
+{{-- @endforeach --}}
 
 
 
@@ -365,79 +328,40 @@
         </div>
       </div>
     </section> --}}
-    <footer class="ftco-footer ftco-section">
-      <div class="container">
-      	<div class="row">
-      		<div class="mouse">
-						<a href="#" class="mouse-icon">
-							<div class="mouse-wheel"><span class="ion-ios-arrow-up"></span></div>
-						</a>
-					</div>
-      	</div>
-        <div class="row mb-5">
-          <div class="col-md">
-            <div class="ftco-footer-widget mb-4">
-              <h2 class="ftco-heading-2">Vegefoods</h2>
-              <p>Far far away, behind the word mountains, far from the countries Vokalia and Consonantia.</p>
-              <ul class="ftco-footer-social list-unstyled float-md-left float-lft mt-5">
-                <li class="ftco-animate"><a href="#"><span class="icon-twitter"></span></a></li>
-                <li class="ftco-animate"><a href="#"><span class="icon-facebook"></span></a></li>
-                <li class="ftco-animate"><a href="#"><span class="icon-instagram"></span></a></li>
-              </ul>
-            </div>
-          </div>
-          <div class="col-md">
-            <div class="ftco-footer-widget mb-4 ml-md-5">
-              <h2 class="ftco-heading-2">Menu</h2>
-              <ul class="list-unstyled">
-                <li><a href="#" class="py-2 d-block">Shop</a></li>
-                <li><a href="#" class="py-2 d-block">About</a></li>
-                <li><a href="#" class="py-2 d-block">Journal</a></li>
-                <li><a href="#" class="py-2 d-block">Contact Us</a></li>
-              </ul>
-            </div>
-          </div>
-          <div class="col-md-4">
-             <div class="ftco-footer-widget mb-4">
-              <h2 class="ftco-heading-2">Help</h2>
-              <div class="d-flex">
-	              <ul class="list-unstyled mr-l-5 pr-l-3 mr-4">
-	                <li><a href="#" class="py-2 d-block">Shipping Information</a></li>
-	                <li><a href="#" class="py-2 d-block">Returns &amp; Exchange</a></li>
-	                <li><a href="#" class="py-2 d-block">Terms &amp; Conditions</a></li>
-	                <li><a href="#" class="py-2 d-block">Privacy Policy</a></li>
-	              </ul>
-	              <ul class="list-unstyled">
-	                <li><a href="#" class="py-2 d-block">FAQs</a></li>
-	                <li><a href="#" class="py-2 d-block">Contact</a></li>
-	              </ul>
-	            </div>
-            </div>
-          </div>
-          <div class="col-md">
-            <div class="ftco-footer-widget mb-4">
-            	<h2 class="ftco-heading-2">Have a Questions?</h2>
-            	<div class="block-23 mb-3">
-	              <ul>
-	                <li><span class="icon icon-map-marker"></span><span class="text">203 Fake St. Mountain View, San Francisco, California, USA</span></li>
-	                <li><a href="#"><span class="icon icon-phone"></span><span class="text">+2 392 3929 210</span></a></li>
-	                <li><a href="#"><span class="icon icon-envelope"></span><span class="text">info@yourdomain.com</span></a></li>
-	              </ul>
-	            </div>
-            </div>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-md-12 text-center">
+    <footer class="py-5 text-white" style="background-color: #82ae46;">
+        <div class="container">
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <h5 class="fw-bold">FreshSaver</h5>
+                    <p class="small">We help you save money on quality products close to expiry date.</p>
+                </div>
 
-            <p><!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-						  Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | This template is made with <i class="icon-heart color-danger" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank">Colorlib</a>
-						  <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-						</p>
-          </div>
+                <div class="col-md-4">
+                    <h6 class="fw-bold mb-3">Quick Links</h6>
+                    <ul class="list-unstyled small">
+                        <li class="mb-1"><i class="fas fa-chevron-right me-2"></i><a href="/shop" class="text-white text-decoration-none">Shop</a></li>
+                        <li class="mb-1"><i class="fas fa-chevron-right me-2"></i><a href="/about" class="text-white text-decoration-none">About</a></li>
+                        <li class="mb-1"><i class="fas fa-chevron-right me-2"></i><a href="/contact" class="text-white text-decoration-none">Contact</a></li>
+                        <li><i class="fas fa-chevron-right me-2"></i><a href="/dashboard" class="text-white text-decoration-none">Dashboard</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-md-4">
+                    <h6 class="fw-bold mb-3">Contact Us</h6>
+                    <p class="small mb-1"><i class="fas fa-map-marker-alt me-2"></i>Amman, Jordan</p>
+                    <p class="small mb-1"><i class="fas fa-phone me-2"></i>+962 7 9999 9999</p>
+                    <p class="small"><i class="fas fa-envelope me-2"></i>info@freshsaver.com</p>
+                </div>
+            </div>
+
+            <hr class="border-light">
+
+            <div class="text-center small">
+                &copy; {{ date('Y') }} <strong>FreshSaver</strong>. All rights reserved.
+            </div>
         </div>
-      </div>
     </footer>
+
 
 
 

@@ -5,62 +5,84 @@
     <title>{{ $product->name }} - Vegefoods</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- ✅ Google Fonts + CSS Files -->
+    <!-- Google Fonts + CSS Files -->
     <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+
+    <!-- Star Rating CSS -->
+    <style>
+        .star-rating {
+            direction: rtl;
+            font-size: 1.5rem;
+            unicode-bidi: bidi-override;
+            display: inline-flex;
+        }
+        .star-rating input[type="radio"] {
+            display: none;
+        }
+        .star-rating label {
+            color: #ccc;
+            cursor: pointer;
+        }
+        .star-rating input[type="radio"]:checked ~ label,
+        .star-rating label:hover,
+        .star-rating label:hover ~ label {
+            color: #ffc107;
+        }
+    </style>
 </head>
 
 <body class="goto-here">
 
 @include('navbar')
 
-<section class="ftco-section">
+<section class="ftco-section py-5" style="background-color: #f8f9fa;">
     <div class="container">
-        <div class="row">
+        <div class="row bg-white rounded shadow-sm p-4 align-items-start">
 
             <!-- ✅ Product Image -->
-            <div class="col-md-6 mb-4">
-                <img src="{{ asset('storage/' . $product->image_url) }}" class="img-fluid border p-2 rounded" style="max-height: 400px; object-fit: contain;" alt="{{ $product->name }}">
+            <div class="col-md-5 text-center">
+                <div class="border rounded p-3 bg-white" style="height: 100%; display: flex; align-items: center; justify-content: center;">
+                    <img src="{{ asset('storage/' . $product->image_url) }}" class="img-fluid" style="max-height: 320px; object-fit: contain;" alt="{{ $product->name }}">
+                </div>
             </div>
 
             <!-- ✅ Product Details -->
-            <div class="col-md-6">
-                <h2 class="mb-2">{{ $product->name }}</h2>
+            <div class="col-md-7">
+                <h3 class="fw-bold">{{ $product->name }}</h3>
 
                 @if($product->category)
-                    <p class="text-muted mb-1">Category: {{ $product->category->name }}</p>
+                    <p class="text-muted small">Category: {{ $product->category->name }}</p>
                 @endif
 
-                <p class="text-success h5 fw-bold">Price: ${{ number_format($product->price, 2) }}</p>
-                <p class="text-muted">Available Stock: {{ $product->stock }}</p>
+                <h4 class="text-success fw-bold mb-2">Price: ${{ number_format($product->price, 2) }}</h4>
+                <p class="mb-3">Stock: <span class="fw-semibold">{{ $product->stock }}</span></p>
 
                 @auth
                     @if(auth()->user()->role === 'customer')
-                        <!-- ✅ Add to Cart Form -->
-                        <form id="add-to-cart-form" action="{{ route('cart.add', $product->id) }}" method="POST" class="mt-3">
+                        <!-- Add to Cart -->
+                        <form id="add-to-cart-form" action="{{ route('cart.add', $product->id) }}" method="POST" class="mb-4">
                             @csrf
-                            <button type="submit" class="btn btn-success" id="add-to-cart-button">
-                                Add to Cart
-                            </button>
+                            <button type="submit" class="btn btn-success px-4">🛒 Add to Cart</button>
                         </form>
 
-                        <!-- ✅ Submit Review Form -->
-                        <form action="{{ route('reviews.store', $product->id) }}" method="POST" class="mt-5">
+                        <!-- Review Form -->
+                        <form action="{{ route('reviews.store', $product->id) }}" method="POST" class="border-top pt-4">
                             @csrf
+                            <h5 class="mb-3">Rate this product</h5>
+
                             <div class="mb-3">
-                                <label for="rating" class="form-label">Rating (1 to 5)</label>
-                                <select name="rating" id="rating" class="form-select" required>
-                                    <option value="">Select</option>
+                                <div class="star-rating">
                                     @for ($i = 5; $i >= 1; $i--)
-                                        <option value="{{ $i }}">{{ $i }}</option>
+                                        <input type="radio" id="star{{ $i }}" name="rating" value="{{ $i }}" required>
+                                        <label for="star{{ $i }}">★</label>
                                     @endfor
-                                </select>
+                                </div>
                             </div>
 
                             <div class="mb-3">
-                                <label for="comment" class="form-label">Your Review</label>
-                                <textarea name="comment" id="comment" rows="3" class="form-control" required></textarea>
+                                <textarea name="comment" rows="3" class="form-control" placeholder="Write your review..." required></textarea>
                             </div>
 
                             <button type="submit" class="btn btn-primary">Submit Review</button>
@@ -70,75 +92,98 @@
 
                 @guest
                     <div class="alert alert-info mt-4">
-                        <a href="{{ route('login') }}" class="text-primary fw-bold">Login</a> to write a review or add to cart.
+                        <p>
+                            <span>To write a review or add to cart, please </span>
+                            <a href="javascript:void(0);" onclick="openLoginModal()" class="fw-bold text-primary text-decoration-underline">Login</a>.
+                        </p>
                     </div>
                 @endguest
+            </div>
+        </div>
 
-                <!-- ✅ Show Reviews -->
-                <div class="mt-5">
-                    <h4>Reviews:</h4>
-                    @forelse($product->reviews as $review)
-                        <div class="border rounded p-3 mb-3">
-                            <div class="d-flex justify-content-between">
-                                <strong>{{ $review->user->name }}</strong>
-                                <span class="text-warning fw-bold">★ {{ $review->rating }}/5</span>
-                            </div>
-                            <p class="mb-2 mt-1">{{ $review->comment }}</p>
-                            <small class="text-muted">{{ $review->created_at->diffForHumans() }}</small>
+        <!-- ✅ Reviews Section -->
+        <div class="row mt-5">
+            <div class="col-md-10 offset-md-1">
+                <h4 class="fw-bold mb-3">📝 Customer Reviews</h4>
+
+                @forelse($product->reviews->sortByDesc('created_at')->take(5) as $review)
+                <div class="bg-white border rounded p-3 mb-3 shadow-sm">
+                        <div class="d-flex justify-content-between mb-2">
+                            <strong>{{ $review->user->name }}</strong>
+                            <span class="text-warning">★ {{ $review->rating }}/5</span>
                         </div>
-                    @empty
-                        <p class="text-muted">No reviews yet. Be the first to write one!</p>
-                    @endforelse
-                </div>
-
+                        <p class="mb-1">{{ $review->comment }}</p>
+                        <small class="text-muted">{{ $review->created_at->diffForHumans() }}</small>
+                    </div>
+                @empty
+                    <p class="text-muted">No reviews yet. Be the first to write one!</p>
+                @endforelse
             </div>
         </div>
     </div>
 </section>
 
+
+<!-- Login Modal -->
+<div id="loginModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 9999; justify-content: center; align-items: center;">
+    <div style="background: #fff; padding: 40px 30px; border-radius: 12px; max-width: 400px; width: 100%; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin: auto;">
+        <button onclick="closeLoginModal()" style="position: absolute; top: 15px; right: 20px; background: none; border: none; font-size: 20px;">&times;</button>
+        <h2 class="mb-4 text-center" style="color: #66bb6a; font-weight: 700; font-size: 28px;">Login</h2>
+
+        <form method="POST" action="{{ route('login') }}">
+            @csrf
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" name="email" class="form-control" required placeholder="Enter your email">
+            </div>
+            <div class="mb-4">
+                <label class="form-label">Password</label>
+                <input type="password" name="password" class="form-control" required placeholder="Enter your password">
+            </div>
+            <div class="text-center">
+                <button type="submit" class="btn btn-success rounded-pill px-4 py-2">Login</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 @include('footer')
 
-<!-- ✅ JS Files -->
+<!-- JS Files -->
 <script src="{{ asset('js/jquery.min.js') }}"></script>
 <script src="{{ asset('js/bootstrap.min.js') }}"></script>
 <script src="{{ asset('js/main.js') }}"></script>
-
-<!-- ✅ SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<!-- ✅ AJAX Add to Cart -->
+<!-- AJAX Add to Cart -->
 <script>
 $(document).ready(function() {
     $('#add-to-cart-form').submit(function(e) {
         e.preventDefault();
-
         $.ajax({
             url: $(this).attr('action'),
             method: 'POST',
             data: $(this).serialize(),
             success: function(response) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Added to Cart!',
-                    showConfirmButton: false,
-                    timer: 1500
-                });
-
-                // ✅ تحديث رقم السلة
+                Swal.fire({ icon: 'success', title: 'Added to Cart!', showConfirmButton: false, timer: 1500 });
                 if (response.cartCount !== undefined) {
                     $('#cart-count').text(response.cartCount);
                 }
             },
-            error: function(xhr) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: 'Something went wrong!'
-                });
+            error: function() {
+                Swal.fire({ icon: 'error', title: 'Oops...', text: 'Something went wrong!' });
             }
         });
     });
 });
+
+function openLoginModal() {
+    document.getElementById("loginModal").style.display = "flex";
+}
+function closeLoginModal() {
+    document.getElementById("loginModal").style.display = "none";
+}
 </script>
 
 </body>

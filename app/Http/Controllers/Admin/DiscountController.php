@@ -50,18 +50,17 @@ class DiscountController extends Controller
     }
 
     public function update(Request $request, Discount $discount)
-    {
-        $request->validate([
-            'product_id'         => 'required|exists:products,id',
-            'discount_percentage'=> 'required|numeric|min:1|max:100',
-            'start_date'         => 'required|date',
-            'end_date'           => 'required|date|after_or_equal:start_date',
-        ]);
+{
+    $validated = $request->validate([
+        'discount_percentage' => 'required|numeric|min:0|max:100',
+        'start_date' => 'required|date',
+        'end_date'   => 'required|date|after_or_equal:start_date',
+    ]);
 
-        $discount->update($request->all());
+    $discount->update($validated);
 
-        return redirect()->route('admin.discounts.index')->with('success', 'Discount updated successfully.');
-    }
+    return redirect()->route('admin.discounts.index')->with('success', 'Discount updated successfully.');
+}
 
     public function destroy(Discount $discount)
     {

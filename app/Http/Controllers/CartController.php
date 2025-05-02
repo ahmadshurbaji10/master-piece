@@ -51,7 +51,7 @@ class CartController extends Controller
         unset($cart[$product->id]);
         session()->put('cart', $cart);
 
-        return redirect()->back()->with('success', 'تم حذف المنتج من السلة.');
+        return redirect()->back()->with('success', 'Product removed from cart');
     }
 
     // ✅ تحديث كمية منتج
@@ -74,7 +74,7 @@ class CartController extends Controller
 
         session()->put('cart', $cart);
 
-        return redirect()->back()->with('success', 'تم تحديث السلة.');
+        return redirect()->back()->with('success', 'Cart updated');
     }
 
     // ✅ صفحة الدفع

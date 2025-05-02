@@ -1,5 +1,6 @@
-<x-app-layout>
-    <x-slot name="header">
+@extends('layouts.admin')
+
+@section('content')    <x-slot name="header">
         <h2 class="font-semibold text-2xl text-gray-800 leading-tight">
             ✏️ Edit User
         </h2>
@@ -47,4 +48,4 @@
             </div>
         </div>
     </div>
-</x-app-layout>
+    @endsection

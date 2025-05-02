@@ -33,29 +33,35 @@ class ProductController extends Controller
         $request->validate([
             'name'        => 'required|string|max:255',
             'price'       => 'required|numeric',
-            'image_url'   => 'nullable|url',
+            'stock'       => 'required|integer|min:0',
             'expiry_date' => 'nullable|date',
-            'stock'       => 'required|integer|min:0', // ✅ تحقق من الكمية
+            'image'       => 'nullable|image|max:2048',
         ]);
 
-        $store = auth()->user()->store;
-
-        if (!$store) {
-            return redirect()->back()->with('error', 'No store linked to this user.');
+        // رفع الصورة إن وجدت
+        $imagePath = null;
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('products', 'public');
         }
 
+        // إنشاء المنتج مع store_id ثابت
         Product::create([
             'name'        => $request->name,
             'price'       => $request->price,
-            'image_url'   => $request->image_url,
+            'stock'       => $request->stock,
             'expiry_date' => $request->expiry_date,
-            'store_id'    => $store->id,
-            'stock'       => $request->stock, // ← خليه ياخذ القيمة من الفورم
+            'store_id'    => 3, // ← رقم المتجر الثابت
+            'image_url'   => $imagePath,
         ]);
 
-
-        return redirect()->route('vendor.products.index')->with('success', 'Product added successfully.');
+        return redirect()->route('admin.products.index')->with('success', 'Product created successfully.');
     }
+public function shop()
+{
+    $products = Product::with('discount')->get(); // 👈 تحميل الخصم مع المنتج
+    return view('shop', compact('products'));
+}
+
 
     // عرض نموذج تعديل منتج
     public function edit($id)
