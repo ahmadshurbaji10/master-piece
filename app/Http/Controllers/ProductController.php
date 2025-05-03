@@ -56,6 +56,21 @@ class ProductController extends Controller
 
         return redirect()->route('admin.products.index')->with('success', 'Product created successfully.');
     }
+    public function loadMoreReviews($id)
+{
+    $product = Product::findOrFail($id);
+    $reviews = $product->reviews()->latest()->get();
+
+    $html = '';
+    foreach ($reviews as $review) {
+        $html .= view('partials._review_card', compact('review'))->render();
+    }
+
+    return response()->json(['html' => $html]);
+}
+
+
+
 public function shop()
 {
     $products = Product::with('discount')->get(); // 👈 تحميل الخصم مع المنتج

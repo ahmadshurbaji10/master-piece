@@ -33,6 +33,10 @@
             <i class="fas fa-box mr-3 text-xl"></i> Manage Products
         </a>
 
+        <a href="{{ route('admin.orders.index') }}" class="flex items-center px-4 py-3 rounded-lg hover:bg-green-800 {{ request()->is('admin/orders*') ? 'bg-green-800' : '' }}">
+            <i class="fas fa-receipt mr-3 text-xl"></i> <span class="text-lg">Manage Orders</span>
+        </a>
+
         <a href="{{ route('admin.users.index') }}" class="flex items-center px-4 py-3 rounded-lg hover:bg-green-800 {{ request()->is('admin/users*') ? 'bg-green-800' : '' }}">
             <i class="fas fa-users mr-3 text-xl"></i> Users
         </a>

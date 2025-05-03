@@ -49,7 +49,7 @@
                         <a href="javascript:void(0);" onclick="openLoginModal()" class="nav-link">Login</a>
                     </li>
                     <li class="nav-item">
-                        <a href="{{ route('register') }}" class="nav-link">Register</a>
+                        <a href="javascript:void(0);" onclick="openRegisterModal()" class="nav-link">Register</a>
                     </li>
                 @endauth
 
@@ -89,6 +89,56 @@
       </form>
     </div>
   </div>
+
+  <div id="registerModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9999;justify-content:center;align-items:center;">
+    <div style="background:white;padding:30px;border-radius:10px;width:90%;max-width:400px;box-shadow:0px 5px 20px rgba(0,0,0,0.3);position:relative;">
+        <button onclick="closeRegisterModal()" style="position:absolute;top:10px;right:10px;font-size:24px;border:none;background:none;color:#333;">&times;</button>
+        <h2 style="text-align:center;margin-bottom:20px;font-weight:bold;color:#8dc63f;">Register</h2>
+
+        @if ($errors->any())
+            <div style="color: #e3342f; font-size: 14px; margin-top: 6px; background-color: #fdecea; padding: 8px 10px; border-radius: 5px;">
+                {{ $errors->first() }}
+            </div>
+        @endif
+
+        <form method="POST" action="{{ route('register') }}">
+            @csrf
+
+            <div class="form-group mb-3">
+                <label>Name</label>
+                <input type="text" name="name" class="form-control" placeholder="Enter your name" value="{{ old('name') }}" required>
+            </div>
+
+            <div class="form-group mb-3">
+                <label>Email</label>
+                <input type="email" name="email" class="form-control" placeholder="Enter your email" value="{{ old('email') }}" required>
+            </div>
+
+            <div class="form-group mb-3">
+                <label>Password</label>
+                <input type="password" name="password" class="form-control" placeholder="Enter your password" required>
+            </div>
+
+            <div class="form-group mb-4">
+                <label>Confirm Password</label>
+                <input type="password" name="password_confirmation" class="form-control" placeholder="Confirm your password" required>
+            </div>
+
+            <div class="text-center">
+                <button type="submit" class="btn btn-success px-4 py-2" style="border-radius:25px;">Register</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openRegisterModal() {
+        document.getElementById('registerModal').style.display = 'flex';
+    }
+    function closeRegisterModal() {
+        document.getElementById('registerModal').style.display = 'none';
+    }
+</script>
 
   <!-- ✅ JavaScript -->
   <script>

@@ -1,7 +1,8 @@
 <?php
 
 namespace App\Http\Controllers;
- use App\Models\Product;
+
+use App\Models\Product;
 use App\Models\Review;
 use App\Models\Category;
 use Illuminate\Http\Request;
@@ -15,6 +16,10 @@ class ShopController extends Controller
         // 🔍 فلترة حسب الاسم
         if ($request->filled('search')) {
             $query->where('name', 'like', '%' . $request->search . '%');
+        }
+
+        if ($request->filled('expires_in')) {
+            $query->whereDate('expiry_date', '<=', now()->addDays($request->expires_in));
         }
 
         // 🏷️ فلترة حسب القسم (category_id)
@@ -35,17 +40,16 @@ class ShopController extends Controller
             $query->latest(); // الافتراضي
         }
 
-        $products = $query->get();
-        $categories = Category::all(); // ✅ عشان نعرضها في الفلتر
+        // التغيير الرئيسي هنا - استخدام paginate بدلاً من get
+        $products = $query->paginate(12); // يمكنك تغيير الرقم 12 حسب ما تريد
+        $categories = Category::all();
 
         return view('shop', compact('products', 'categories'));
     }
 
-
     public function show($id)
-{
-    $product = Product::with('category', 'reviews.user')->findOrFail($id); // جلب المنتج مع التقييمات والمستخدمين
-    
-    return view('shop.show', compact('product'));
-}
+    {
+        $product = Product::with('category', 'reviews.user')->findOrFail($id);
+        return view('shop.show', compact('product'));
+    }
 }

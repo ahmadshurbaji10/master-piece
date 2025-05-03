@@ -40,7 +40,7 @@ class CartController extends Controller
         ]);
     }
 
-    return redirect()->back()->with('success', 'تمت إضافة المنتج إلى السلة.');
+    return redirect()->back()->with('success', 'The product has been added to the cart.');
 }
 
 
@@ -79,50 +79,84 @@ class CartController extends Controller
 
     // ✅ صفحة الدفع
     public function checkout(Request $request)
-{
-    $cart = session('cart', []);
-    if (empty($cart)) {
-        return redirect()->route('cart.index')->with('error', 'السلة فارغة.');
-    }
+    {
+        $cart = session('cart', []);
+        if (empty($cart)) {
+            return redirect()->route('cart.index')->with('error', 'The cart is empty');
+        }
 
-    $request->validate([
-        'name' => 'required|string|max:255',
-        'address' => 'required|string|max:255',
-        'payment_method' => 'required|in:cash,visa',
-    ]);
+        // تحقق من وسيلة الدفع أولاً
+        $payment = $request->payment_method;
 
-    $total = collect($cart)->sum(fn($item) => $item['price'] * $item['quantity']);
+        // تحقق مشترك
+        $rules = [
+            'payment_method' => 'required|in:cash,visa',
+        ];
 
-    $order = Order::create([
-        'user_id' => auth()->id(),
-        'total_price' => $total,
-        'status' => 'pending',
-        'name' => $request->name,  // ⬅ خزن الاسم
-        'address' => $request->address, // ⬅ خزن العنوان
-        'payment_method' => $request->payment_method, // ⬅ خزن طريقة الدفع
-    ]);
+        // إذا الدفع كاش
+        if ($payment === 'cash') {
+            $rules['name'] = 'required|string|max:255';
+            $rules['address'] = 'required|string|max:255';
+        }
 
-    foreach ($cart as $id => $item) {
-        $product = Product::find($id);
-        if (!$product) continue;
+        // إذا الدفع فيزا
+        if ($payment === 'visa') {
+            $rules['card_name'] = 'required|string|max:255';
+            $rules['card_number'] = 'required|digits:16';
+            $rules['expiry_date'] = ['required', 'regex:/^(0[1-9]|1[0-2])\/\d{2}$/'];
+            $rules['cvv'] = 'required|digits_between:3,4';
+        }
 
-        OrderItem::create([
-            'order_id' => $order->id,
-            'product_id' => $product->id,
-            'quantity' => $item['quantity'],
-            'price' => $item['price'],
+        $request->validate($rules);
+
+        // التحقق من توفر الكمية
+        foreach ($cart as $id => $item) {
+            $product = Product::find($id);
+            if (!$product) continue;
+
+            if ($item['quantity'] > $product->stock) {
+                return redirect()->route('cart.index')
+                    ->with('error', "Required quantity of product ({$product->name}) not available. Available Quantity: {$product->stock}.");
+            }
+        }
+
+        $total = collect($cart)->sum(fn($item) => $item['price'] * $item['quantity']);
+
+        $order = Order::create([
+            'user_id' => auth()->id(),
+            'total_price' => $total,
+            'status' => 'pending',
+            'name' => $request->name ?? $request->card_name,
+            'address' => $request->address ?? 'Paid with Visa',
+            'payment_method' => $payment,
         ]);
+
+        foreach ($cart as $id => $item) {
+            $product = Product::find($id);
+            if (!$product) continue;
+
+            OrderItem::create([
+                'order_id' => $order->id,
+                'product_id' => $product->id,
+                'quantity' => $item['quantity'],
+                'price' => $item['price'],
+            ]);
+
+            $product->stock -= $item['quantity'];
+            $product->save();
+        }
+
+        session()->forget('cart');
+
+        return redirect()->route('customer.dashboard')->with('success', 'The request was executed successfully ✅');
     }
 
-    session()->forget('cart');
 
-    return redirect()->route('customer.dashboard')->with('success', 'تم تنفيذ الطلب بنجاح ✅');
-}
 
 public function addToCart(Request $request, $id)
 {
     if (!auth()->check() || auth()->user()->role !== 'customer') {
-        return redirect()->route('login')->with('error', 'يجب تسجيل الدخول كعميل لإضافة المنتجات إلى السلة.');
+        return redirect()->route('login')->with('error', 'You must be logged in as a customer to add products to the cart.');
     }
 
     $product = Product::findOrFail($id);

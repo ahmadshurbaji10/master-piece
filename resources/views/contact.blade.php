@@ -32,51 +32,167 @@
         <div class="container">
             {{-- Cards Section --}}
             <div class="row d-flex mb-5 contact-info">
-                <div class="col-md-3 d-flex">
-                    <div class="info bg-white p-4 w-100 text-center">
-                        <p><strong>Address:</strong><br> 198 West 21th Street,<br>Suite 721 Amman<br> Jordan</p>
+                {{-- بطاقة العنوان --}}
+                <div class="col-md-3 d-flex mb-4 mb-md-0">
+                    <div class="info bg-white p-4 w-100 text-center contact-card">
+                        <i class="fas fa-map-marker-alt mb-3 text-success"></i>
+                        <h5 class="mb-3">Address</h5>
+                        <p>198 West 21th Street,<br>Suite 721 Amman<br>Jordan</p>
                     </div>
                 </div>
-                <div class="col-md-3 d-flex">
-                    <div class="info bg-white p-4 w-100 text-center">
-                        <p><strong>Phone:</strong><br> +962 775432428</p>
+
+                {{-- بطاقة الهاتف --}}
+                <div class="col-md-3 d-flex mb-4 mb-md-0">
+                    <div class="info bg-white p-4 w-100 text-center contact-card">
+                        <i class="fas fa-phone mb-3 text-success"></i>
+                        <h5 class="mb-3">Phone</h5>
+                        <p>+962 775432428</p>
                     </div>
                 </div>
-                <div class="col-md-3 d-flex">
-                    <div class="info bg-white p-4 w-100 text-center">
-                        <p><strong>Email:</strong><br> shurbaji@vegefoods.com</p>
+
+                {{-- بطاقة البريد --}}
+                <div class="col-md-3 d-flex mb-4 mb-md-0">
+                    <div class="info bg-white p-4 w-100 text-center contact-card">
+                        <i class="fas fa-envelope mb-3 text-success"></i>
+                        <h5 class="mb-3">Email</h5>
+                        <p>shurbaji@vegefoods.com</p>
                     </div>
                 </div>
-                <div class="col-md-3 d-flex">
-                    <div class="info bg-white p-4 w-100 text-center">
-                        <p><strong>Website:</strong><br> www.vegefoods.com</p>
+
+                {{-- بطاقة الموقع --}}
+                <div class="col-md-3 d-flex mb-4 mb-md-0">
+                    <div class="info bg-white p-4 w-100 text-center contact-card">
+                        <i class="fas fa-globe mb-3 text-success"></i>
+                        <h5 class="mb-3">Website</h5>
+                        <p>www.vegefoods.com</p>
                     </div>
                 </div>
             </div>
+
             @if(session('success'))
-            <div class="alert alert-success text-center">
-                {{ session('success') }}
-            </div>
-        @endif
+                <div class="alert alert-success text-center">
+                    {{ session('success') }}
+                </div>
+            @endif
+        </div>
+    </section>
+
+    <style>
+        .contact-card {
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+            height: 100%;
+            border: 1px solid rgba(130, 174, 70, 0.1);
+        }
+
+        .contact-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .contact-card i {
+            font-size: 2rem;
+        }
+
+        .contact-card h5 {
+            color: #82ae46;
+            font-weight: 600;
+        }
+
+        .contact-card p {
+            margin-bottom: 0;
+            color: #555;
+        }
+    </style>
             {{-- Contact Form + Map --}}
-            <form action="{{ route('contact.send') }}" method="POST" class="bg-white p-5 contact-form w-100">
+            <form action="{{ route('contact.send') }}" method="POST" class="contact-form">
                 @csrf
                 <div class="form-group">
-                    <input type="text" name="name" class="form-control" placeholder="Your Name" required>
+                    <label for="name">Your Name</label>
+                    <input type="text" id="name" name="name" class="form-control" required>
                 </div>
+
                 <div class="form-group">
-                    <input type="email" name="email" class="form-control" placeholder="Your Email" required>
+                    <label for="email">Your Email</label>
+                    <input type="email" id="email" name="email" class="form-control" required>
                 </div>
+
                 <div class="form-group">
-                    <input type="text" name="subject" class="form-control" placeholder="Subject" required>
+                    <label for="subject">Subject</label>
+                    <input type="text" id="subject" name="subject" class="form-control" required>
                 </div>
+
                 <div class="form-group">
-                    <textarea name="message" cols="30" rows="7" class="form-control" placeholder="Message" required></textarea>
+                    <label for="message">Message</label>
+                    <textarea id="message" name="message" rows="5" class="form-control" required></textarea>
                 </div>
+
                 <div class="form-group">
-                    <input type="submit" value="Send Message" class="btn btn-primary py-3 px-5">
+                    <button type="submit" class="btn-submit">
+                        Send Message
+                    </button>
                 </div>
             </form>
+
+            <style>
+                .contact-form {
+                    max-width: 800px;
+                    margin: 0 auto;
+                    padding: 30px;
+                    background: #fff;
+                    border-radius: 10px;
+                    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+                }
+
+                .form-group {
+                    margin-bottom: 25px;
+                }
+
+                .form-group label {
+                    display: block;
+                    margin-bottom: 8px;
+                    font-weight: 500;
+                    color: #333;
+                }
+
+                .form-control {
+                    width: 100%;
+                    padding: 12px 15px;
+                    border: 1px solid #ddd;
+                    border-radius: 6px;
+                    font-size: 16px;
+                    transition: border-color 0.3s;
+                }
+
+                .form-control:focus {
+                    border-color: #82ae46;
+                    outline: none;
+                    box-shadow: 0 0 0 3px rgba(130, 174, 70, 0.2);
+                }
+
+                textarea.form-control {
+                    min-height: 150px;
+                    resize: vertical;
+                }
+
+                .btn-submit {
+                    background: #82ae46;
+                    color: white;
+                    border: none;
+                    padding: 14px 30px;
+                    border-radius: 6px;
+                    font-size: 16px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    width: 100%;
+                    transition: background 0.3s;
+                }
+
+                .btn-submit:hover {
+                    background: #6c9440;
+                }
+            </style>
 
 
                 {{-- <div class="col-md-6 d-flex">

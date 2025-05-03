@@ -5,7 +5,6 @@
     <title>🧺 Shopping Cart</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- Fonts & Styles -->
     <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
@@ -15,6 +14,9 @@
             width: 80px;
             height: 80px;
             object-fit: contain;
+        }
+        #visaFields, #cashFields {
+            display: none;
         }
     </style>
 </head>
@@ -83,8 +85,8 @@
                 </tbody>
             </table>
 
-            <!-- Proceed to Checkout Button -->
-            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#checkoutModal">
+            <!-- Proceed to Checkout -->
+            <button type="button" class="btn btn-success mt-3" data-bs-toggle="modal" data-bs-target="#checkoutModal">
                 🧾 Proceed to Checkout
             </button>
 
@@ -92,7 +94,7 @@
             <div class="modal fade" id="checkoutModal" tabindex="-1" aria-labelledby="checkoutModalLabel" aria-hidden="true">
                 <div class="modal-dialog">
                     <div class="modal-content">
-                        <form action="{{ route('cart.checkout') }}" method="POST">
+                        <form id="checkoutForm" action="{{ route('cart.checkout') }}" method="POST">
                             @csrf
                             <div class="modal-header">
                                 <h5 class="modal-title" id="checkoutModalLabel">Checkout Form</h5>
@@ -100,17 +102,44 @@
                             </div>
 
                             <div class="modal-body">
-                                <div class="mb-3">
-                                    <label class="form-label">Full Name</label>
-                                    <input type="text" class="form-control" name="name" required>
+                                <!-- Cash Fields -->
+                                <div id="cashFields">
+                                    <div class="mb-3">
+                                        <label class="form-label">Full Name</label>
+                                        <input type="text" class="form-control" name="name">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Shipping Address</label>
+                                        <input type="text" class="form-control" name="address">
+                                    </div>
                                 </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Shipping Address</label>
-                                    <input type="text" class="form-control" name="address" required>
+
+                                <!-- Visa Fields -->
+                                <div id="visaFields">
+                                    <div class="mb-3">
+                                        <label class="form-label">Card Holder Name</label>
+                                        <input type="text" class="form-control" name="card_name">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Card Number</label>
+                                        <input type="text" class="form-control" name="card_number" maxlength="16" pattern="\d{16}" placeholder="XXXX XXXX XXXX XXXX">
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Expiry Date</label>
+                                            <input type="text" class="form-control" name="expiry_date" placeholder="MM/YY" pattern="(0[1-9]|1[0-2])\/\d{2}">
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">CVV</label>
+                                            <input type="password" class="form-control" name="cvv" maxlength="4" pattern="\d{3,4}">
+                                        </div>
+                                    </div>
                                 </div>
+
+                                <!-- Payment Method -->
                                 <div class="mb-3">
                                     <label class="form-label">Payment Method</label>
-                                    <select class="form-control" name="payment_method" required>
+                                    <select class="form-control" name="payment_method" id="payment_method" required>
                                         <option value="">Select</option>
                                         <option value="cash">Cash</option>
                                         <option value="visa">Visa / MasterCard</option>
@@ -126,48 +155,99 @@
                     </div>
                 </div>
             </div>
-
         @else
-            <div class="alert alert-info">🛒 Your cart is empty.</div>
+            <div class="alert alert-info mt-4">🛒 Your cart is empty.</div>
         @endif
     </div>
 </section>
 
 @include('footer')
 
-<!-- JS Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const paymentSelect = document.querySelector('select[name="payment_method"]');
-    const nameInput = document.querySelector('input[name="name"]');
-    const addressInput = document.querySelector('input[name="address"]');
-    const confirmButton = document.querySelector('button[type="submit"]');
+    const paymentMethod = document.getElementById('payment_method');
+    const cashFields = document.getElementById('cashFields');
+    const visaFields = document.getElementById('visaFields');
+    const form = document.getElementById('checkoutForm');
 
-    function disableFormFields(disabled) {
-        nameInput.disabled = disabled;
-        addressInput.disabled = disabled;
-        confirmButton.disabled = disabled;
+    function toggleFields() {
+        if (paymentMethod.value === 'cash') {
+            cashFields.style.display = 'block';
+            visaFields.style.display = 'none';
+            cashFields.querySelectorAll('input').forEach(input => input.required = true);
+            visaFields.querySelectorAll('input').forEach(input => input.required = false);
+        } else if (paymentMethod.value === 'visa') {
+            cashFields.style.display = 'none';
+            visaFields.style.display = 'block';
+            visaFields.querySelectorAll('input').forEach(input => input.required = true);
+            cashFields.querySelectorAll('input').forEach(input => input.required = false);
+        } else {
+            cashFields.style.display = 'none';
+            visaFields.style.display = 'none';
+            cashFields.querySelectorAll('input').forEach(input => input.required = false);
+            visaFields.querySelectorAll('input').forEach(input => input.required = false);
+        }
     }
 
-    paymentSelect.addEventListener('change', function () {
-        if (this.value === 'visa') {
-            Swal.fire({
-                icon: 'info',
-                title: 'Coming Soon 🚀',
-                text: 'Visa/MasterCard payments will be available soon.',
-            });
-            disableFormFields(true);
-        } else if (this.value === 'cash') {
-            disableFormFields(false);
+    paymentMethod.addEventListener('change', toggleFields);
+    toggleFields();
+
+    form.addEventListener('submit', function (e) {
+        if (!form.checkValidity()) {
+            e.preventDefault();
+            e.stopPropagation();
+            form.classList.add('was-validated');
+        }
+    });
+});
+</script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('checkoutForm');
+    const paymentMethod = document.getElementById('payment_method');
+
+    form.addEventListener('submit', function (e) {
+        if (!form.checkValidity()) {
+            e.preventDefault();
+            form.classList.add('was-validated');
         } else {
-            disableFormFields(true);
+            e.preventDefault(); // وقف الإرسال الحقيقي فقط للتجريب
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Order Confirmed 🎉',
+                text: 'Your order has been placed successfully!',
+                confirmButtonText: 'OK'
+            }).then(() => {
+                form.submit(); // فعّل الإرسال بعد التأكيد
+            });
         }
     });
 
-    disableFormFields(true);
+    const toggleFields = () => {
+        const cashFields = document.getElementById('cashFields');
+        const visaFields = document.getElementById('visaFields');
+
+        if (paymentMethod.value === 'cash') {
+            cashFields.style.display = 'block';
+            visaFields.style.display = 'none';
+            cashFields.querySelectorAll('input').forEach(input => input.required = true);
+            visaFields.querySelectorAll('input').forEach(input => input.required = false);
+        } else if (paymentMethod.value === 'visa') {
+            cashFields.style.display = 'none';
+            visaFields.style.display = 'block';
+            visaFields.querySelectorAll('input').forEach(input => input.required = true);
+            cashFields.querySelectorAll('input').forEach(input => input.required = false);
+        } else {
+            cashFields.style.display = 'none';
+            visaFields.style.display = 'none';
+        }
+    };
+
+    paymentMethod.addEventListener('change', toggleFields);
+    toggleFields();
 });
 </script>
 
