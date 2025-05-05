@@ -6,6 +6,8 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use Illuminate\Http\Request;
 use App\Models\Product;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Storage;
 
 class CartController extends Controller
 {
@@ -78,78 +80,92 @@ class CartController extends Controller
     }
 
     // ✅ صفحة الدفع
-    public function checkout(Request $request)
-    {
-        $cart = session('cart', []);
-        if (empty($cart)) {
-            return redirect()->route('cart.index')->with('error', 'The cart is empty');
+
+
+
+public function checkout(Request $request)
+{
+    $cart = session('cart', []);
+    if (empty($cart)) {
+        return redirect()->route('cart.index')->with('error', 'The cart is empty');
+    }
+
+    $payment = $request->payment_method;
+
+    $rules = [
+        'payment_method' => 'required|in:cash,visa',
+    ];
+
+    if ($payment === 'cash') {
+        $rules['name'] = 'required|string|max:255';
+        $rules['address'] = 'required|string|max:255';
+    }
+
+    if ($payment === 'visa') {
+        $rules['card_name'] = 'required|string|max:255';
+        $rules['card_number'] = 'required|digits:16';
+        $rules['expiry_date'] = ['required', 'regex:/^(0[1-9]|1[0-2])\/\d{2}$/'];
+        $rules['cvv'] = 'required|digits_between:3,4';
+    }
+
+    $request->validate($rules);
+
+    foreach ($cart as $id => $item) {
+        $product = Product::find($id);
+        if (!$product) continue;
+
+        if ($item['quantity'] > $product->stock) {
+            return redirect()->route('cart.index')
+                ->with('error', "Required quantity of product ({$product->name}) not available. Available Quantity: {$product->stock}.");
         }
+    }
 
-        // تحقق من وسيلة الدفع أولاً
-        $payment = $request->payment_method;
+    $total = collect($cart)->sum(fn($item) => $item['price'] * $item['quantity']);
 
-        // تحقق مشترك
-        $rules = [
-            'payment_method' => 'required|in:cash,visa',
-        ];
+    $order = Order::create([
+        'user_id' => auth()->id(),
+        'total_price' => $total,
+        'store_id' => 1, // أو حسب ما عندك
+        'status' => 'pending',
+    ]);
 
-        // إذا الدفع كاش
-        if ($payment === 'cash') {
-            $rules['name'] = 'required|string|max:255';
-            $rules['address'] = 'required|string|max:255';
-        }
+    foreach ($cart as $id => $item) {
+        $product = Product::find($id);
+        if (!$product) continue;
 
-        // إذا الدفع فيزا
-        if ($payment === 'visa') {
-            $rules['card_name'] = 'required|string|max:255';
-            $rules['card_number'] = 'required|digits:16';
-            $rules['expiry_date'] = ['required', 'regex:/^(0[1-9]|1[0-2])\/\d{2}$/'];
-            $rules['cvv'] = 'required|digits_between:3,4';
-        }
-
-        $request->validate($rules);
-
-        // التحقق من توفر الكمية
-        foreach ($cart as $id => $item) {
-            $product = Product::find($id);
-            if (!$product) continue;
-
-            if ($item['quantity'] > $product->stock) {
-                return redirect()->route('cart.index')
-                    ->with('error', "Required quantity of product ({$product->name}) not available. Available Quantity: {$product->stock}.");
-            }
-        }
-
-        $total = collect($cart)->sum(fn($item) => $item['price'] * $item['quantity']);
-
-        $order = Order::create([
-            'user_id' => auth()->id(),
-            'total_price' => $total,
-            'status' => 'pending',
-            'name' => $request->name ?? $request->card_name,
-            'address' => $request->address ?? 'Paid with Visa',
-            'payment_method' => $payment,
+        OrderItem::create([
+            'order_id' => $order->id,
+            'product_id' => $product->id,
+            'quantity' => $item['quantity'],
+            'price' => $item['price'],
         ]);
 
-        foreach ($cart as $id => $item) {
-            $product = Product::find($id);
-            if (!$product) continue;
-
-            OrderItem::create([
-                'order_id' => $order->id,
-                'product_id' => $product->id,
-                'quantity' => $item['quantity'],
-                'price' => $item['price'],
-            ]);
-
-            $product->stock -= $item['quantity'];
-            $product->save();
-        }
-
-        session()->forget('cart');
-
-        return redirect()->route('customer.dashboard')->with('success', 'The request was executed successfully ✅');
+        $product->stock -= $item['quantity'];
+        $product->save();
     }
+
+    session()->forget('cart');
+
+    // ✅ توليد الفاتورة مع تمرير البيانات يدويًا
+    $customerData = [
+        'name' => $request->input('name') ?? $request->input('card_name') ?? 'N/A',
+        'address' => $request->input('address') ?? 'Paid with Visa',
+        'payment_method' => $payment ?? 'N/A',
+    ];
+
+    $pdf = Pdf::loadView('invoice', [
+        'order' => $order,
+        'customer' => $customerData,
+    ]);
+
+    $pdfPath = 'invoices/invoice_' . $order->id . '.pdf';
+    Storage::disk('public')->put($pdfPath, $pdf->output());
+
+    return redirect()->route('customer.dashboard')->with('success', 'The request was executed successfully ✅. <a href="' . asset('storage/' . $pdfPath) . '" target="_blank">View Invoice PDF</a>');
+}
+
+
+
 
 
 

@@ -197,7 +197,7 @@
 
 
 
-      <!-- ✅ CATEGORIES SECTION -->
+     <!-- ✅ CATEGORIES SECTION -->
 <section class="ftco-section bg-light py-5">
     <div class="container">
         <div class="text-center mb-5">
@@ -205,13 +205,14 @@
             <p class="text-muted">Browse items by type to find what you need</p>
         </div>
 
-        <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-5 g-4 justify-content-center">
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-4">
             @php
-                $categories = [
-                    ['name' => 'grains', 'img' => 'images/OP.jpg'],
-                    ['name' => 'oils', 'img' => 'images/8b6468bd-1a9a-478a-9c0a-abb8fe8daaf4.png'],
-                    ['name' => 'canned', 'img' => 'images/0032894010131-v360-016.jpg'],
-                    ['name' => 'juices', 'img' => 'images/mat.jpg']
+                $categories = \App\Models\Category::limit(4)->get();
+                $imageMap = [
+                    'grains' => 'images/categories/th.jpeg',
+                    'oils' => 'images/categories/Zjpg.jpg',
+                    'canned' => 'images/categories/MO.jpeg',
+                    'dairy' => 'images/categories/th (1).jpeg',
                 ];
             @endphp
 
@@ -219,11 +220,11 @@
                 <div class="col">
                     <div class="card shadow-sm border-0 h-100 text-center" style="border-radius: 12px; overflow: hidden;">
                         <div class="p-3 bg-white d-flex justify-content-center align-items-center" style="height: 180px; border-radius: 12px 12px 0 0;">
-                            <img src="{{ asset($category['img']) }}" alt="{{ $category['name'] }}" class="img-fluid" style="max-height: 100%; object-fit: contain;">
+                            <img src="{{ asset($imageMap[$category->slug] ?? 'images/categories/default.jpg') }}" alt="{{ $category->name }}" class="img-fluid" style="max-height: 100%; object-fit: contain;">
                         </div>
                         <div class="card-body">
-                            <h6 class="fw-semibold text-capitalize mb-3">{{ ucfirst($category['name']) }}</h6>
-                            <a href="/shop" class="btn btn-outline-success btn-sm" style="border-radius: 8px; min-width: 100px;">
+                            <h6 class="fw-semibold text-capitalize mb-3">{{ ucfirst($category->name) }}</h6>
+                            <a href="{{ url('/shop?category=' . $category->id) }}" class="btn btn-outline-success btn-sm" style="border-radius: 8px; min-width: 100px;">
                                 Shop Now
                             </a>
                         </div>
@@ -233,6 +234,8 @@
         </div>
     </div>
 </section>
+
+
 
 <!-- ✅ PRODUCTS SECTION -->
 <section class="ftco-section py-5">
