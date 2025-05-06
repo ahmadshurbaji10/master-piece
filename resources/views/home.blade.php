@@ -27,28 +27,13 @@
     <link rel="stylesheet" href="css/flaticon.css">
     <link rel="stylesheet" href="css/icomoon.css">
     <link rel="stylesheet" href="css/style.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css"/>
+
   </head>
   <body class="goto-here">
-		{{-- <div class="py-1 bg-primary">
-    	<div class="container">
-    		<div class="row no-gutters d-flex align-items-start align-items-center px-md-0">
-	    		<div class="col-lg-12 d-block">
-		    		<div class="row d-flex">
-		    			<div class="col-md pr-4 d-flex topper align-items-center">
-					    	<div class="icon mr-2 d-flex justify-content-center align-items-center"><span class="icon-phone2"></span></div>
-						    <span class="text">00962775432428</span>
-					    </div>
-					    <div class="col-md pr-4 d-flex topper align-items-center">
-					    	<div class="icon mr-2 d-flex justify-content-center align-items-center"><span class="icon-paper-plane"></span></div>
-						    <span class="text">youremail@email.com</span>
-					    </div>
-					    <div class="col-md-5 pr-4 d-flex topper align-items-center text-lg-right">
-						    <span class="text">3-5 Business days delivery &amp; Free Returns</span>
-					    </div>
-				    </div>
-			    </div>
-		    </div>
-		  </div> --}}
+
           <nav class="navbar navbar-expand-lg navbar-dark ftco_navbar bg-dark ftco-navbar-light" id="ftco-navbar">
     <div class="container">
         <a class="navbar-brand" href="{{ url('/home') }}">FreshSaver</a>
@@ -245,9 +230,9 @@
             <p class="text-muted">Explore the latest offers on items close to expiry</p>
         </div>
 
-        <div class="row g-4">
+        <div class="owl-carousel owl-theme">
             @foreach($products as $product)
-                <div class="col-md-6 col-lg-3" >
+                <div class="item">
                     <div class="card h-100 shadow-sm border-0 rounded-3">
                         <a href="{{ url('shop/'.$product->id) }}" class="bg-white d-flex justify-content-center align-items-center" style="height: 200px;">
                             <img src="{{ asset('storage/' . $product->image_url) }}" alt="{{ $product->name }}" style="max-height: 90%; object-fit: contain;">
@@ -265,13 +250,13 @@
                                 <p class="mb-2 text-success fw-bold">${{ number_format($product->price, 2) }}</p>
                             @endif
 
-                            <div class="d-flex justify-content-center gap-2" >
-                                <a href="{{ route('shop.show', $product->id) }}" class="btn btn-outline-success btn-sm"  style="border-radius: 8px; min-width: 100px;">View Details</a>
+                            <div class="d-flex justify-content-center gap-2">
+                                <a href="{{ route('shop.show', $product->id) }}" class="btn btn-outline-success btn-sm" style="border-radius: 8px; min-width: 100px;">View Details</a>
                                 @auth
                                     @if(auth()->user()->role === 'customer')
                                         <form action="{{ route('cart.add', $product->id) }}" method="POST">
                                             @csrf
-                                            <button type="submit" class="btn btn-outline-success btn-sm" style="border-radius: 8px; min-width: 100px;" >Add to Cart</button>
+                                            <button type="submit" class="btn btn-outline-success btn-sm" style="border-radius: 8px; min-width: 100px;">Add to Cart</button>
                                         </form>
                                     @endif
                                 @endauth
@@ -281,58 +266,11 @@
                 </div>
             @endforeach
         </div>
+
     </div>
 </section>
 
 
-{{-- @endforeach --}}
-
-
-
-
-
-
-		{{-- <section class="ftco-section img" style="background-image: url(images/bg_3.jpg);">
-    	<div class="container">
-				<div class="row justify-content-end">
-          <div class="col-md-6 heading-section ftco-animate deal-of-the-day ftco-animate">
-          	<span class="subheading">Best Price For You</span>
-            <h2 class="mb-4">Deal of the day</h2>
-            <p>Far far away, behind the word mountains, far from the countries Vokalia and Consonantia</p>
-            <h3><a href="#">Spinach</a></h3>
-            <span class="price">$10 <a href="#">now $5 only</a></span>
-            <div id="timer" class="d-flex mt-5">
-						  <div class="time" id="days"></div>
-						  <div class="time pl-3" id="hours"></div>
-						  <div class="time pl-3" id="minutes"></div>
-						  <div class="time pl-3" id="seconds"></div>
-						</div>
-          </div>
-        </div>
-    	</div>
-    </section> --}}
-
-
-    <hr>
-
-		{{-- <section class="ftco-section ftco-no-pt ftco-no-pb py-5 bg-light">
-      <div class="container py-4">
-        <div class="row d-flex justify-content-center py-5">
-          <div class="col-md-6">
-          	<h2 style="font-size: 22px;" class="mb-0">Subcribe to our Newsletter</h2>
-          	<span>Get e-mail updates about our latest shops and special offers</span>
-          </div>
-          <div class="col-md-6 d-flex align-items-center">
-            <form action="#" class="subscribe-form">
-              <div class="form-group d-flex">
-                <input type="text" class="form-control" placeholder="Enter email address">
-                <input type="submit" value="Subscribe" class="submit px-3">
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-    </section> --}}
     <footer class="py-5 text-white" style="background-color: #82ae46;">
         <div class="container">
             <div class="row mb-4">
@@ -479,6 +417,25 @@
       document.getElementById('loginModal').style.display = 'none';
   }
   </script>
+<script>
+    $(document).ready(function(){
+        $('.owl-carousel').owlCarousel({
+            loop: true,
+            margin: 20,
+            nav: true,
+            dots: false,
+            autoplay: true,
+            autoplayTimeout: 4000,
+            responsive:{
+                0:{ items:1 },
+                576:{ items:2 },
+                768:{ items:3 },
+                992:{ items:4 }
+            }
+        });
+    });
+    </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
 
   </body>
 </html>

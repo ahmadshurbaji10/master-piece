@@ -57,7 +57,22 @@
                 @endif
 
                 <h4 class="text-success fw-bold mb-2">Price: ${{ number_format($product->price, 2) }}</h4>
-                <p class="mb-3">Stock: <span class="fw-semibold">{{ $product->stock }}</span></p>
+                <p class="text-success fw-bold mb-1">${{ number_format($product->price, 2) }}</p>
+@if($product->expiry_date)
+    @php
+        $daysLeft = \Carbon\Carbon::now()->diffInDays(\Carbon\Carbon::parse($product->expiry_date), false);
+    @endphp
+    <p class="text-muted small mb-2">
+        @if ($daysLeft > 0)
+            ⏳ {{ $daysLeft }} day{{ $daysLeft > 1 ? 's' : '' }} left
+        @elseif ($daysLeft == 0)
+            ⚠️ Expires today!
+        @else
+            ❌ Expired {{ abs($daysLeft) }} day{{ abs($daysLeft) > 1 ? 's' : '' }} ago
+        @endif
+    </p>
+@endif
+
 
                 @auth
                     @if(auth()->user()->role === 'customer')

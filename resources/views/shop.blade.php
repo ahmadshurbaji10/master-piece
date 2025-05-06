@@ -352,8 +352,22 @@
                                     <span class="text-success fw-bold">${{ number_format($product->final_price, 2) }}</span>
                                 </p>
                             @else
-                                <p class="text-success fw-bold">${{ number_format($product->price, 2) }}</p>
+                            <p class="text-success fw-bold mb-1">${{ number_format($product->price, 2) }}</p>
+                            @if($product->expiry_date)
+                                @php
+                                    $daysLeft = \Carbon\Carbon::now()->diffInDays(\Carbon\Carbon::parse($product->expiry_date), false);
+                                @endphp
+                                <p class="text-muted small mb-2">
+                                    @if ($daysLeft > 0)
+                                        ⏳ {{ $daysLeft }} day{{ $daysLeft > 1 ? 's' : '' }} left
+                                    @elseif ($daysLeft == 0)
+                                        ⚠️ Expires today!
+                                    @else
+                                        ❌ Expired {{ abs($daysLeft) }} day{{ abs($daysLeft) > 1 ? 's' : '' }} ago
+                                    @endif
+                                </p>
                             @endif
+                                                        @endif
 
                             <div class="d-flex justify-content-center gap-2" >
                                 <a href="{{ route('shop.show', $product->id) }}" class="btn btn-outline-success btn-sm"  style="border-radius: 8px; min-width: 100px;">View Details</a>
