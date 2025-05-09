@@ -24,6 +24,7 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(fun
 });
 Route::patch('/admin/orders/{order}/status', [\App\Http\Controllers\Admin\OrderController::class, 'updateStatus'])->name('admin.orders.updateStatus');
 
+Route::post('/cart/set/{id}', [CartController::class, 'setQuantity'])->name('cart.set');
 
 
 Route::get('/admin/profile', function () {
@@ -254,7 +255,12 @@ use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\VendorController;
 
     Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
-        Route::resource('discounts', DiscountController::class)->except(['show']); // أو حسب الصفحات المتاحة عندك
+Route::get('discounts', [DiscountController::class, 'index'])->name('discounts.index');
+Route::get('discounts/create', [DiscountController::class, 'create'])->name('discounts.create');
+Route::post('discounts', [DiscountController::class, 'store'])->name('discounts.store');
+Route::get('discounts/{discount}/edit', [DiscountController::class, 'edit'])->name('discounts.edit');
+Route::put('discounts/{discount}', [DiscountController::class, 'update'])->name('discounts.update');
+Route::delete('discounts/{discount}', [DiscountController::class, 'destroy'])->name('discounts.destroy');
     });
 
 

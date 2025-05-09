@@ -6,35 +6,41 @@
 @section('content')
 
 <!-- 🔍 Filter Section -->
-<div class="bg-white rounded-xl shadow-md p-4 mb-6">
-    <form method="GET" action="{{ route('admin.products.index') }}" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+<div class="bg-white rounded-xl shadow-md p-6 mb-6">
+    <form method="GET" action="{{ route('admin.products.index') }}" class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
+        <!-- Stock Status -->
         <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Stock Status</label>
-            <select name="stock_status" class="w-full rounded border-gray-300 focus:border-green-500 focus:ring-green-500">
+            <select name="stock_status" class="w-full p-2 rounded-md border border-gray-300 focus:border-green-500 focus:ring-1 focus:ring-green-500">
                 <option value="">All</option>
                 <option value="in">In Stock</option>
                 <option value="out">Out of Stock</option>
             </select>
         </div>
 
+        <!-- Expiry Before -->
         <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Expiry Before</label>
-            <input type="date" name="expiry_date" class="w-full rounded border-gray-300 focus:border-green-500 focus:ring-green-500">
+            <input type="date" name="expiry_date" class="w-full p-2 rounded-md border border-gray-300 focus:border-green-500 focus:ring-1 focus:ring-green-500">
         </div>
 
+        <!-- Price From -->
         <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Price From</label>
-            <input type="number" step="0.01" name="price_from" class="w-full rounded border-gray-300 focus:border-green-500 focus:ring-green-500">
+            <input type="number" step="0.01" name="price_from" class="w-full p-2 rounded-md border border-gray-300 focus:border-green-500 focus:ring-1 focus:ring-green-500">
         </div>
 
+        <!-- Price To -->
         <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Price To</label>
-            <input type="number" step="0.01" name="price_to" class="w-full rounded border-gray-300 focus:border-green-500 focus:ring-green-500">
+            <input type="number" step="0.01" name="price_to" class="w-full p-2 rounded-md border border-gray-300 focus:border-green-500 focus:ring-1 focus:ring-green-500">
         </div>
 
-        <div class="md:col-span-4 flex justify-end gap-3 mt-4">
-            <a href="{{ route('admin.products.index') }}" class="px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 border">❌ Clear</a>
-            <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">🔍 Filter</button>
+        <!-- Filter Button -->
+        <div class="flex items-end h-full">
+            <button type="submit" class="w-full h-10 px-4 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">
+                Filter
+            </button>
         </div>
     </form>
 </div>

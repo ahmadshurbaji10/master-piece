@@ -45,6 +45,18 @@ class CartController extends Controller
     return redirect()->back()->with('success', 'The product has been added to the cart.');
 }
 
+public function setQuantity(Request $request, $id)
+{
+    $quantity = max(1, intval($request->quantity)); // التأكد أنه >= 1
+    $cart = session()->get('cart', []);
+
+    if (isset($cart[$id])) {
+        $cart[$id]['quantity'] = $quantity;
+        session()->put('cart', $cart);
+    }
+
+    return redirect()->back();
+}
 
     // ✅ حذف منتج من السلة
     public function remove(Product $product)

@@ -57,18 +57,28 @@
                             <td>{{ $item['name'] }}</td>
                             <td>${{ number_format($item['price'], 2) }}</td>
                             <td class="d-flex align-items-center">
+                                <!-- زر الإنقاص -->
                                 <form action="{{ route('cart.update', $id) }}" method="POST" class="d-inline me-2">
                                     @csrf
                                     <input type="hidden" name="action" value="decrease">
                                     <button class="btn btn-sm btn-outline-secondary">-</button>
                                 </form>
-                                <span class="mx-2">{{ $item['quantity'] }}</span>
+
+                                <!-- حقل إدخال الكمية -->
+                                <form action="{{ route('cart.set', $id) }}" method="POST" class="d-inline mx-2" style="width: 60px;">
+                                    @csrf
+                                    <input type="number" name="quantity" min="1" class="form-control form-control-sm text-center"
+                                           value="{{ $item['quantity'] }}" onchange="this.form.submit()">
+                                </form>
+
+                                <!-- زر الزيادة -->
                                 <form action="{{ route('cart.update', $id) }}" method="POST" class="d-inline ms-2">
                                     @csrf
                                     <input type="hidden" name="action" value="increase">
                                     <button class="btn btn-sm btn-outline-secondary">+</button>
                                 </form>
                             </td>
+
                             <td>${{ number_format($item['price'] * $item['quantity'], 2) }}</td>
                             <td>
                                 <form action="{{ route('cart.remove', $id) }}" method="POST">
