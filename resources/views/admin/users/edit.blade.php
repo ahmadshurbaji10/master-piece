@@ -1,51 +1,75 @@
 @extends('layouts.admin')
 
-@section('content')    <x-slot name="header">
-        <h2 class="font-semibold text-2xl text-gray-800 leading-tight">
-            ✏️ Edit User
-        </h2>
-    </x-slot>
+@section('title', 'Admin | Edit User')
+@section('page_title', 'Edit User')
 
-    <div class="py-8">
-        <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white shadow rounded-lg p-6">
-                <form method="POST" action="{{ route('admin.users.update', $user->id) }}">
-                    @csrf
-                    @method('PUT')
+@section('content')
 
-                    <div class="mb-4">
-                        <label for="name" class="block text-base font-medium text-gray-700">Name</label>
-                        <input type="text" name="name" id="name" value="{{ old('name', $user->name) }}"
-                               class="w-full mt-1 border border-gray-300 rounded-md shadow-sm px-3 py-2" required>
-                    </div>
+<!-- 👤 Edit User Section -->
+<div class="bg-white shadow-md rounded-lg p-6">
 
-                    <div class="mb-4">
-                        <label for="email" class="block text-base font-medium text-gray-700">Email</label>
-                        <input type="email" name="email" id="email" value="{{ old('email', $user->email) }}"
-                               class="w-full mt-1 border border-gray-300 rounded-md shadow-sm px-3 py-2" required>
-                    </div>
+    <!-- 🔝 Header -->
+    <div class="flex justify-between items-center mb-6">
+        <h3 class="text-2xl font-bold text-gray-800">Edit User: {{ $user->name }}</h3>
+    </div>
 
-                    <div class="mb-4">
-                        <label for="role" class="block text-base font-medium text-gray-700">Role</label>
-                        <select name="role" id="role"
-                                class="w-full mt-1 border border-gray-300 rounded-md shadow-sm px-3 py-2">
-                            <option value="admin" {{ $user->role === 'admin' ? 'selected' : '' }}>Admin</option>
-                            <option value="vendor" {{ $user->role === 'vendor' ? 'selected' : '' }}>Vendor</option>
-                            <option value="customer" {{ $user->role === 'customer' ? 'selected' : '' }}>Customer</option>
-                        </select>
-                    </div>
+    @if ($errors->any())
+        <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6">
+            <ul class="list-disc pl-5">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
 
-                    <div class="mt-6 flex justify-end">
-                        <a href="{{ route('admin.users.index') }}"
-                           class="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 transition mr-2">Cancel</a>
+    <!-- 📋 Edit Form -->
+    <form action="{{ route('admin.users.update', $user->id) }}" method="POST">
+        @csrf
+        @method('PUT')
 
-                        <button type="submit"
-                                class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
-                            💾 Update User
-                        </button>
-                    </div>
-                </form>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <!-- Name -->
+            <div>
+                <label class="block text-gray-700 text-sm font-medium mb-2">Name</label>
+                <input type="text" name="name"
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                       value="{{ old('name', $user->name) }}" required>
+            </div>
+
+            <!-- Email -->
+            <div>
+                <label class="block text-gray-700 text-sm font-medium mb-2">Email</label>
+                <input type="email" name="email"
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                       value="{{ old('email', $user->email) }}" required>
+            </div>
+
+            <!-- Role -->
+            <div>
+                <label class="block text-gray-700 text-sm font-medium mb-2">Role</label>
+                <select name="role"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                    <option value="admin" {{ $user->role === 'admin' ? 'selected' : '' }}>Admin</option>
+                    <option value="vendor" {{ $user->role === 'vendor' ? 'selected' : '' }}>Vendor</option>
+                    <option value="customer" {{ $user->role === 'customer' ? 'selected' : '' }}>Customer</option>
+                </select>
             </div>
         </div>
-    </div>
-    @endsection
+
+        <!-- Form Actions -->
+        <div class="flex justify-end space-x-4 mt-6">
+            <a href="{{ route('admin.users.index') }}"
+               class="px-5 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition">
+                Back
+            </a>
+            <button type="submit"
+                    class="px-5 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition">
+                Update User
+            </button>
+        </div>
+    </form>
+
+</div>
+
+@endsection

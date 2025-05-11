@@ -48,13 +48,14 @@
                     <a href="{{ url('/home') }}" class="nav-link">Home</a>
                 </li>
 
-                <li class="nav-item dropdown">
+                {{-- <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="dropdown04" data-toggle="dropdown"
                        aria-haspopup="true" aria-expanded="false">Shop</a>
                     <div class="dropdown-menu" aria-labelledby="dropdown04">
                         <a class="dropdown-item" href="{{ url('/shop') }}">Shop</a>
                     </div>
-                </li>
+                </li> --}}
+                <li class="nav-item"><a href="{{ route('shop') }}" class="nav-link">Shop</a></li>
 
                 <li class="nav-item"><a href="{{ route('about') }}" class="nav-link">About</a></li>
                 <li class="nav-item"><a href="{{ route('contact') }}" class="nav-link">Contact</a></li>

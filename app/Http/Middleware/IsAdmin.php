@@ -14,4 +14,5 @@ class IsAdmin
 
         abort(403, 'Unauthorized');
     }
+    
 }

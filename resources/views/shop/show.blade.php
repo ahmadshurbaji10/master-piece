@@ -35,7 +35,7 @@
 
 <body class="goto-here">
 
-@include('navbar')
+    @include('navbar')
 
 <section class="ftco-section py-5" style="background-color: #f8f9fa;">
     <div class="container">
@@ -58,6 +58,12 @@
 
                 <h4 class="text-success fw-bold mb-2">Price: ${{ number_format($product->price, 2) }}</h4>
                 <p class="text-success fw-bold mb-1">${{ number_format($product->price, 2) }}</p>
+                @if($product->stock > 0)
+    <p class="text-muted mb-2">🧮 Remaining: <strong>{{ $product->stock }}</strong> item{{ $product->stock > 1 ? 's' : '' }}</p>
+@else
+    <p class="text-danger fw-bold">Out of stock</p>
+@endif
+
 @if($product->expiry_date)
     @php
         $daysLeft = \Carbon\Carbon::now()->diffInDays(\Carbon\Carbon::parse($product->expiry_date), false);

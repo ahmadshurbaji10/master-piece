@@ -41,9 +41,13 @@
             <i class="fas fa-users mr-3 text-xl"></i> Users
         </a>
 
-        <a href="{{ route('admin.discounts.index') }}" class="flex items-center px-4 py-3 rounded-lg hover:bg-green-800 {{ request()->is('admin/discounts*') ? 'bg-green-800' : '' }}">
-            <i class="fas fa-tags mr-3 text-xl"></i> Discounts
+        <a  href="{{ route('coupons.index') }}"  class="flex items-center px-4 py-3 rounded-lg hover:bg-green-700 {{ request()->is('admin/coupons*') ? 'bg-green-700' : '' }}"" href="{{ route('coupons.index') }}">
+            <i class="fas fa-tags me-2"></i> Coupons
         </a>
+
+        {{-- <a href="{{ route('admin.discounts.index') }}" class="flex items-center px-4 py-3 rounded-lg hover:bg-green-800 {{ request()->is('admin/discounts*') ? 'bg-green-800' : '' }}">
+            <i class="fas fa-tags mr-3 text-xl"></i> Discounts
+        </a> --}}
     </nav>
 </aside>
 

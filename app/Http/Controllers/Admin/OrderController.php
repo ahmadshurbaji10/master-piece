@@ -25,6 +25,18 @@ class OrderController extends Controller
 
     return back()->with('success', 'تم تحديث حالة الطلب إلى مكتمل ✅');
 }
+public function destroy(Order $order)
+{
+    // تأكد من صلاحيات المستخدم أولاً
+    if (auth()->user()->role !== 'admin') {
+        abort(403);
+    }
 
+    // غير حالة الطلب إلى "ملغى" بدلاً من حذفه
+    $order->update(['status' => 'cancelled']);
+
+    return redirect()->route('admin.orders.index')
+        ->with('success', 'Order has been cancelled successfully');
+}
 }
 

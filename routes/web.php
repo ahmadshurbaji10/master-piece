@@ -18,6 +18,16 @@ use App\Http\Controllers\ContactController;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+
+Route::prefix('admin')->name('admin.')->middleware('isAdmin')->group(function () {
+    Route::resource('orders', OrderController::class);
+});
+
+Route::prefix('admin')->middleware('auth')->group(function () {
+    Route::resource('coupons', \App\Http\Controllers\Admin\CouponController::class);
+});
+
+
 Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(function () {
     Route::get('/orders', [\App\Http\Controllers\Admin\OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{id}', [\App\Http\Controllers\Admin\OrderController::class, 'show'])->name('orders.show');

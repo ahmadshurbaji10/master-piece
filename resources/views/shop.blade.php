@@ -23,49 +23,7 @@
     <link rel="stylesheet" href="css/style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        /* أنماط الفلتر المحسنة */
-        .filter-section {
-            background-color: #f8f9fa;
-            border-radius: 10px;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-        .filter-header {
-            border-bottom: 1px solid #dee2e6;
-            padding-bottom: 0.5rem;
-            margin-bottom: 1.5rem;
-            color: #82ae46;
-        }
-        .filter-label {
-            font-weight: 500;
-            margin-bottom: 0.5rem;
-            color: #495057;
-        }
-        .filter-input {
-            border-radius: 8px;
-            padding: 0.5rem 1rem;
-            border: 1px solid #ced4da;
-        }
-        .filter-input:focus {
-            border-color: #82ae46;
-            box-shadow: 0 0 0 0.25rem rgba(130, 174, 70, 0.25);
-        }
-        .btn-apply {
-            background-color: #82ae46;
-            color: white;
-            border-radius: 8px;
-            padding: 0.5rem 1.5rem;
-            font-weight: 500;
-            border: none;
-            transition: all 0.3s;
-        }
-        .btn-apply:hover {
-            background-color: #6c9440;
-            transform: translateY(-2px);
-        }
-
-        /* أنماط بطاقات المنتجات */
+        /* Product card styles */
         .product-card {
             transition: all 0.3s;
             border-radius: 12px;
@@ -89,22 +47,56 @@
             max-width: 100%;
             object-fit: contain;
         }
-        .discount-badge {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background-color: #dc3545;
-            color: white;
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
+
+        /* Filter section styles */
+
+.filter-section {
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+.filter-header {
+    border-bottom: 1px solid #dee2e6;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
+    color: #82ae46;
+}
+.filter-label {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: #495057;
+}
+.filter-input {
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    border: 1px solid #ced4da;
+}
+.filter-input:focus {
+    border-color: #82ae46;
+    box-shadow: 0 0 0 0.25rem rgba(130, 174, 70, 0.25);
+}
+.btn-apply {
+    background-color: #82ae46;
+    color: white;
+    border-radius: 8px;
+    padding: 0.5rem 1.5rem;
+    font-weight: 500;
+    border: none;
+    transition: all 0.3s;
+}
+.btn-apply:hover {
+    background-color: #6c9440;
+    transform: translateY(-2px);
+}
+
+
     </style>
 </head>
 <body class="goto-here">
 
-<!-- النافبار المطابق لصفحة الهوم -->
+<!-- Navigation bar -->
 <nav class="navbar navbar-expand-lg navbar-dark ftco_navbar bg-dark ftco-navbar-light" id="ftco-navbar">
     <div class="container">
         <a class="navbar-brand" href="{{ url('/home') }}">FreshSaver</a>
@@ -118,15 +110,7 @@
                 <li class="nav-item {{ request()->is('/home') ? 'active' : '' }}">
                     <a href="{{ url('/home') }}" class="nav-link">Home</a>
                 </li>
-
-                <li class="nav-item dropdown {{ request()->is('shop') ? 'active' : '' }}">
-                    <a class="nav-link dropdown-toggle" href="#" id="dropdown04" data-toggle="dropdown"
-                       aria-haspopup="true" aria-expanded="false">Shop</a>
-                    <div class="dropdown-menu" aria-labelledby="dropdown04">
-                        <a class="dropdown-item" href="{{ url('/shop') }}">Shop</a>
-                    </div>
-                </li>
-
+                <li class="nav-item"><a href="{{ route('shop') }}" class="nav-link">Shop</a></li>
                 <li class="nav-item"><a href="{{ route('about') }}" class="nav-link">About</a></li>
                 <li class="nav-item"><a href="{{ route('contact') }}" class="nav-link">Contact</a></li>
 
@@ -157,10 +141,10 @@
                         <a href="javascript:void(0);" onclick="openRegisterModal()" class="nav-link">Register</a>
                     </li>
                 @endauth
-
-                <li class="nav-item cta cta-colored">
+                <li class="nav-item">
                     <a href="{{ route('cart.index') }}" class="nav-link">
-                        {{-- <span class="icon-shopping_cart"></span> [{{ Auth::check() ? Auth::user()->cartItems()->count() : '0' }}] --}}
+                        <i class="icon-shopping_cart"></i>
+                        <span> (<span id="cart-count">{{ session('cart') ? collect(session('cart'))->sum('quantity') : 0 }}</span>)</span>
                     </a>
                 </li>
             </ul>
@@ -168,7 +152,7 @@
     </div>
 </nav>
 
-<!-- قسم الفلتر -->
+<!-- Filter section -->
 <section class="py-4">
     <div class="container">
         <div class="filter-section">
@@ -239,120 +223,21 @@
     </div>
 </section>
 
-<style>
-    .filter-section {
-        background-color: #f8f9fa;
-        border-radius: 10px;
-        padding: 1.5rem;
-        margin-bottom: 2rem;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    }
-    .filter-header {
-        border-bottom: 1px solid #dee2e6;
-        padding-bottom: 0.5rem;
-        margin-bottom: 1.5rem;
-        color: #82ae46;
-    }
-    .filter-label {
-        font-weight: 500;
-        margin-bottom: 0.5rem;
-        color: #495057;
-        display: block;
-    }
-    .form-select, .form-control {
-        border-radius: 6px;
-        padding: 0.5rem 1rem;
-        border: 1px solid #ced4da;
-        width: 100%;
-        margin-bottom: 0;
-    }
-    .form-select:focus, .form-control:focus {
-        border-color: #82ae46;
-        box-shadow: 0 0 0 0.25rem rgba(130, 174, 70, 0.25);
-    }
-    .shadow-sm {
-        box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-    }
-    .input-group {
-        width: 100%;
-    }
-    .input-group-text {
-        background-color: #fff;
-        border-right: none;
-    }
-    .border-start-0 {
-        border-left: none;
-    }
-    .btn-success, .btn-outline-secondary {
-        height: 38px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    .row.g-3 > [class^="col-"] {
-        padding-right: 8px;
-        padding-left: 8px;
-    }
-</style>
-
-<style>
-    .filter-section {
-        background-color: #f8f9fa;
-        border-radius: 10px;
-        padding: 1.5rem;
-        margin-bottom: 2rem;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    }
-    .filter-header {
-        border-bottom: 1px solid #dee2e6;
-        padding-bottom: 0.5rem;
-        margin-bottom: 1.5rem;
-        color: #82ae46;
-    }
-    .filter-label {
-        font-weight: 500;
-        margin-bottom: 0.5rem;
-        color: #495057;
-    }
-    .form-select, .form-control {
-        border-radius: 6px;
-        padding: 0.5rem 1rem;
-        border: 1px solid #ced4da;
-    }
-    .form-select:focus, .form-control:focus {
-        border-color: #82ae46;
-        box-shadow: 0 0 0 0.25rem rgba(130, 174, 70, 0.25);
-    }
-    .shadow-sm {
-        box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-    }
-</style>
-
-<!-- قسم المنتجات -->
+<!-- Products section -->
 <section class="pb-5">
     <div class="container">
         <div class="row">
             @forelse ($products as $product)
                 <div class="col-md-3 mb-4">
                     <div class="card product-card h-100 shadow-sm">
-                        @if ($product->discount)
-                            <span class="discount-badge">-{{ $product->discount->percentage }}%</span>
-                        @endif
-
                         <div class="product-img-container">
                             <img src="{{ asset('storage/' . $product->image_url) }}" alt="{{ $product->name }}" class="product-img">
                         </div>
 
                         <div class="card-body">
                             <h5 class="card-title">{{ $product->name }}</h5>
-
-                            @if ($product->discount)
-                                <p class="mb-1">
-                                    <span class="text-muted text-decoration-line-through">${{ number_format($product->price, 2) }}</span>
-                                    <span class="text-success fw-bold">${{ number_format($product->final_price, 2) }}</span>
-                                </p>
-                            @else
                             <p class="text-success fw-bold mb-1">${{ number_format($product->price, 2) }}</p>
+
                             @if($product->expiry_date)
                                 @php
                                     $daysLeft = \Carbon\Carbon::now()->diffInDays(\Carbon\Carbon::parse($product->expiry_date), false);
@@ -367,15 +252,14 @@
                                     @endif
                                 </p>
                             @endif
-                                                        @endif
 
-                            <div class="d-flex justify-content-center gap-2" >
-                                <a href="{{ route('shop.show', $product->id) }}" class="btn btn-outline-success btn-sm"  style="border-radius: 8px; min-width: 100px;">View Details</a>
+                            <div class="d-flex justify-content-center gap-2">
+                                <a href="{{ route('shop.show', $product->id) }}" class="btn btn-outline-success btn-sm" style="border-radius: 8px; min-width: 100px;">View Details</a>
                                 @auth
                                     @if(auth()->user()->role === 'customer')
                                         <form action="{{ route('cart.add', $product->id) }}" method="POST">
                                             @csrf
-                                            <button type="submit" class="btn btn-outline-success btn-sm" style="border-radius: 8px; min-width: 100px;" >Add to Cart</button>
+                                            <button type="submit" class="btn btn-outline-success btn-sm" style="border-radius: 8px; min-width: 100px;">Add to Cart</button>
                                         </form>
                                     @endif
                                 @endauth
@@ -395,7 +279,6 @@
             @endforelse
         </div>
 
-        <!-- الترقيم -->
         @if($products->hasPages())
         <div class="row mt-4">
             <div class="col-12 d-flex justify-content-center">
@@ -406,7 +289,7 @@
     </div>
 </section>
 
-<!-- الفوتر -->
+<!-- Footer -->
 <footer class="py-5 text-white" style="background-color: #82ae46;">
     <div class="container">
         <div class="row mb-4">
@@ -441,7 +324,7 @@
     </div>
 </footer>
 
-<!-- السكربتات -->
+<!-- Scripts -->
 <script src="js/jquery.min.js"></script>
 <script src="js/jquery-migrate-3.0.1.min.js"></script>
 <script src="js/popper.min.js"></script>
@@ -457,94 +340,12 @@
 <script src="js/scrollax.min.js"></script>
 <script src="js/main.js"></script>
 
-<!-- مودال تسجيل الدخول -->
-<div id="loginModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9999;justify-content:center;align-items:center;">
-    <div style="background:white;padding:30px;border-radius:10px;width:90%;max-width:400px;box-shadow:0px 5px 20px rgba(0,0,0,0.3);position:relative;">
-        <button onclick="closeLoginModal()" style="position:absolute;top:10px;right:10px;font-size:24px;border:none;background:none;color:#333;">&times;</button>
-        <h2 style="text-align:center;margin-bottom:20px;font-weight:bold;color:#8dc63f;">Login</h2>
-
-        @if ($errors->any())
-            <div style="color: #e3342f; font-size: 14px; margin-top: 6px; background-color: #fdecea; padding: 8px 10px; border-radius: 5px;">
-                {{ $errors->first() }}
-            </div>
-        @endif
-
-        <form method="POST" action="{{ route('login') }}">
-            @csrf
-            <div class="form-group mb-3">
-                <label>Email</label>
-                <input type="email" name="email" class="form-control" placeholder="Enter your email" value="{{ old('email') }}" required>
-            </div>
-            <div class="form-group mb-4">
-                <label>Password</label>
-                <input type="password" name="password" class="form-control" placeholder="Enter your password" required>
-            </div>
-            <div class="text-center">
-                <button type="submit" class="btn btn-success px-4 py-2" style="border-radius:25px;">Login</button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<script>
-function openLoginModal() {
-    document.getElementById('loginModal').style.display = 'flex';
-}
-function closeLoginModal() {
-    document.getElementById('loginModal').style.display = 'none';
-}
-</script>
-
-<div id="registerModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9999;justify-content:center;align-items:center;">
-    <div style="background:white;padding:30px;border-radius:10px;width:90%;max-width:400px;box-shadow:0px 5px 20px rgba(0,0,0,0.3);position:relative;">
-        <button onclick="closeRegisterModal()" style="position:absolute;top:10px;right:10px;font-size:24px;border:none;background:none;color:#333;">&times;</button>
-        <h2 style="text-align:center;margin-bottom:20px;font-weight:bold;color:#8dc63f;">Register</h2>
-
-        @if ($errors->any())
-            <div style="color: #e3342f; font-size: 14px; margin-top: 6px; background-color: #fdecea; padding: 8px 10px; border-radius: 5px;">
-                {{ $errors->first() }}
-            </div>
-        @endif
-
-        <form method="POST" action="{{ route('register') }}">
-            @csrf
-
-            <div class="form-group mb-3">
-                <label>Name</label>
-                <input type="text" name="name" class="form-control" placeholder="Enter your name" value="{{ old('name') }}" required>
-            </div>
-
-            <div class="form-group mb-3">
-                <label>Email</label>
-                <input type="email" name="email" class="form-control" placeholder="Enter your email" value="{{ old('email') }}" required>
-            </div>
-
-            <div class="form-group mb-3">
-                <label>Password</label>
-                <input type="password" name="password" class="form-control" placeholder="Enter your password" required>
-            </div>
-
-            <div class="form-group mb-4">
-                <label>Confirm Password</label>
-                <input type="password" name="password_confirmation" class="form-control" placeholder="Confirm your password" required>
-            </div>
-
-            <div class="text-center">
-                <button type="submit" class="btn btn-success px-4 py-2" style="border-radius:25px;">Register</button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<script>
-    function openRegisterModal() {
-        document.getElementById('registerModal').style.display = 'flex';
-    }
-    function closeRegisterModal() {
-        document.getElementById('registerModal').style.display = 'none';
-    }
-</script>
-
-
 </body>
 </html>
+
+
+
+
+
+
+

@@ -20,43 +20,57 @@ class CartController extends Controller
 
     // ✅ إضافة منتج إلى السلة
     public function add(Request $request, Product $product)
-{
-    $cart = session()->get('cart', []);
+    {
+        $cart = session()->get('cart', []);
 
-    $cart[$product->id] = [
-        'name' => $product->name,
-        'price' => $product->price,
-        'quantity' => isset($cart[$product->id]) ? $cart[$product->id]['quantity'] + 1 : 1,
-        'image_url' => $product->image_url,
-    ];
+        $currentQty = isset($cart[$product->id]) ? $cart[$product->id]['quantity'] : 0;
+        if ($currentQty >= $product->stock) {
+            return redirect()->back()->with('error', 'Cannot add more than available stock');
+        }
 
-    session()->put('cart', $cart);
+        $cart[$product->id] = [
+            'name' => $product->name,
+            'price' => $product->price,
+            'quantity' => $currentQty + 1,
+            'image_url' => $product->image_url,
+            'stock' => $product->stock, // ✅ أضف هذا السطر
+        ];
 
-    if ($request->ajax()) {
-        // نحسب العدد الإجمالي ونرجعه
-        $cartCount = collect($cart)->sum('quantity');
-
-        return response()->json([
-            'success' => true,
-            'cartCount' => $cartCount,
-        ]);
-    }
-
-    return redirect()->back()->with('success', 'The product has been added to the cart.');
-}
-
-public function setQuantity(Request $request, $id)
-{
-    $quantity = max(1, intval($request->quantity)); // التأكد أنه >= 1
-    $cart = session()->get('cart', []);
-
-    if (isset($cart[$id])) {
-        $cart[$id]['quantity'] = $quantity;
         session()->put('cart', $cart);
+
+        if ($request->ajax()) {
+            $cartCount = collect($cart)->sum('quantity');
+            return response()->json([
+                'success' => true,
+                'cartCount' => $cartCount,
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'The product has been added to the cart.');
     }
 
-    return redirect()->back();
-}
+    public function setQuantity(Request $request, $id)
+    {
+        $quantity = max(1, intval($request->quantity));
+        $cart = session()->get('cart', []);
+        $product = Product::find($id);
+
+        if (!$product) return redirect()->back();
+
+        if ($quantity > $product->stock) {
+            return redirect()->back()->with('error', "Only {$product->stock} items available in stock.");
+        }
+
+        if (isset($cart[$id])) {
+            $cart[$id]['quantity'] = $quantity;
+            $cart[$id]['stock'] = $product->stock; // ✅ أضف هذا السطر لضمان وجوده
+            session()->put('cart', $cart);
+        }
+
+        return redirect()->back();
+    }
+
+
 
     // ✅ حذف منتج من السلة
     public function remove(Product $product)
@@ -78,13 +92,13 @@ public function setQuantity(Request $request, $id)
         }
 
         if ($request->action == 'increase') {
-            $cart[$product->id]['quantity']++;
-        } elseif ($request->action == 'decrease') {
-            $cart[$product->id]['quantity']--;
-            if ($cart[$product->id]['quantity'] <= 0) {
-                unset($cart[$product->id]);
+            if ($cart[$product->id]['quantity'] < $product->stock) {
+                $cart[$product->id]['quantity']++;
+            } else {
+                return redirect()->back()->with('error', 'You reached the maximum stock available');
             }
         }
+
 
         session()->put('cart', $cart);
 
@@ -94,6 +108,24 @@ public function setQuantity(Request $request, $id)
     // ✅ صفحة الدفع
 
 
+    public function applyCoupon(Request $request)
+    {
+        $request->validate([
+            'coupon_code' => 'required|string'
+        ]);
+
+        $coupon = \App\Models\Coupon::where('code', $request->coupon_code)
+            ->where(function ($q) {
+                $q->whereNull('expires_at')->orWhere('expires_at', '>=', now());
+            })->first();
+
+        if (!$coupon || $coupon->usage_limit <= 0) {
+            return back()->with('error', 'Invalid or expired coupon');
+        }
+
+        session(['applied_coupon' => $coupon->code]);
+        return back()->with('success', 'Coupon applied successfully!');
+    }
 
 public function checkout(Request $request)
 {
@@ -106,6 +138,7 @@ public function checkout(Request $request)
 
     $rules = [
         'payment_method' => 'required|in:cash,visa',
+        'coupon_code' => 'nullable|string'
     ];
 
     if ($payment === 'cash') {
@@ -134,10 +167,36 @@ public function checkout(Request $request)
 
     $total = collect($cart)->sum(fn($item) => $item['price'] * $item['quantity']);
 
+    // التعامل مع الكوبون
+    $discountAmount = 0;
+    if ($request->filled('coupon_code')) {
+        $coupon = \App\Models\Coupon::where('code', $request->coupon_code)
+            ->where(function ($q) {
+                $q->whereNull('expires_at')->orWhere('expires_at', '>=', now());
+            })->first();
+
+        if ($coupon) {
+            if ($coupon->usage_limit > 0) {
+                $discountAmount = $coupon->discount_type === 'fixed'
+                    ? $coupon->discount_amount
+                    : ($coupon->discount_amount / 100) * $total;
+
+                $discountAmount = min($discountAmount, $total);
+                $coupon->decrement('usage_limit');
+            } else {
+                return back()->with('error', 'Coupon usage limit exceeded');
+            }
+        } else {
+            return back()->with('error', 'Invalid or expired coupon');
+        }
+    }
+
+    $finalTotal = $total - $discountAmount;
+
     $order = Order::create([
         'user_id' => auth()->id(),
-        'total_price' => $total,
-        'store_id' => 1, // أو حسب ما عندك
+        'total_price' => $finalTotal,
+        'store_id' => 1,
         'status' => 'pending',
     ]);
 
@@ -158,7 +217,7 @@ public function checkout(Request $request)
 
     session()->forget('cart');
 
-    // ✅ توليد الفاتورة مع تمرير البيانات يدويًا
+    // توليد الفاتورة
     $customerData = [
         'name' => $request->input('name') ?? $request->input('card_name') ?? 'N/A',
         'address' => $request->input('address') ?? 'Paid with Visa',
@@ -181,6 +240,7 @@ public function checkout(Request $request)
 
 
 
+
 public function addToCart(Request $request, $id)
 {
     if (!auth()->check() || auth()->user()->role !== 'customer') {
@@ -189,20 +249,33 @@ public function addToCart(Request $request, $id)
 
     $product = Product::findOrFail($id);
 
-    // الكود الطبيعي للإضافة للسلة مثلا
     $cart = session()->get('cart', []);
+
+    $currentQty = isset($cart[$id]) ? $cart[$id]['quantity'] : 0;
+
+    if ($currentQty >= $product->stock) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Cannot add more than available stock.'
+        ]);
+    }
+
     $cart[$id] = [
         "name" => $product->name,
         "price" => $product->price,
-        "quantity" => 1
+        "quantity" => $currentQty + 1,
+        "image_url" => $product->image_url,
+        "stock" => $product->stock, // ✅ مهم جدًا
     ];
+
     session()->put('cart', $cart);
 
     return response()->json([
         'success' => true,
-        'cartCount' => count($cart)
+        'cartCount' => collect($cart)->sum('quantity'),
     ]);
 }
+
 
 
 }
