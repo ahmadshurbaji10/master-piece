@@ -20,7 +20,7 @@ use App\Http\Controllers\ContactController;
 */
 
 Route::prefix('admin')->name('admin.')->middleware('isAdmin')->group(function () {
-    Route::resource('orders', OrderController::class);
+    Route::resource('orders', \App\Http\Controllers\Admin\OrderController::class);
 });
 
 Route::prefix('admin')->middleware('auth')->group(function () {
@@ -183,8 +183,8 @@ Route::post('/cart/add/{product}', [App\Http\Controllers\CartController::class, 
 //     Route::get('/checkout', [CartController::class, 'checkoutPage'])->name('checkout.page');
 //     Route::post('/checkout', [CartController::class, 'checkout'])->name('checkout.process');
 // });
-Route::get('customer/orders/{order}', [OrderController::class, 'show'])
-    ->name('customer.orders.show');
+// Route::get('customer/orders/{order}', [OrderController::class, 'show'])
+//     ->name('customer.orders.show');
 
     Route::get('/customer/orders/{order}', [CustomerController::class, 'showOrder'])->name('customer.orders.show');
 
@@ -274,9 +274,9 @@ Route::delete('discounts/{discount}', [DiscountController::class, 'destroy'])->n
     });
 
 
-    Route::prefix('vendor')->middleware(['auth', 'role:vendor'])->name('vendor.')->group(function () {
-        Route::resource('orders', \App\Http\Controllers\Vendor\OrderController::class)->only(['index']);
-    });
+    // Route::prefix('vendor')->middleware(['auth', 'role:vendor'])->name('vendor.')->group(function () {
+    //     Route::resource('orders', \App\Http\Controllers\Vendor\OrderController::class)->only(['index']);
+    // });
 
 
     Route::middleware(['auth', 'role:vendor'])->prefix('vendor')->name('vendor.')->group(function () {

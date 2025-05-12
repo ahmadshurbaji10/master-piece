@@ -33,7 +33,7 @@ public function destroy(Order $order)
     }
 
     // غير حالة الطلب إلى "ملغى" بدلاً من حذفه
-    $order->update(['status' => 'cancelled']);
+    $order->update(['status' => 'canceled']);
 
     return redirect()->route('admin.orders.index')
         ->with('success', 'Order has been cancelled successfully');
