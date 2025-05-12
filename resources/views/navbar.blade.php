@@ -94,7 +94,7 @@
   <div id="registerModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9999;justify-content:center;align-items:center;">
     <div style="background:white;padding:30px;border-radius:10px;width:90%;max-width:400px;box-shadow:0px 5px 20px rgba(0,0,0,0.3);position:relative;">
         <button onclick="closeRegisterModal()" style="position:absolute;top:10px;right:10px;font-size:24px;border:none;background:none;color:#333;">&times;</button>
-        <h2 style="text-align:center;margin-bottom:20px;font-weight:bold;color:#8dc63f;">Register</h2>
+        <h2 style="text-align:center;margin-bottom:20px;font-weight:bold;color:#66bb6a;;">Register</h2>
 
         @if ($errors->any())
             <div style="color: #e3342f; font-size: 14px; margin-top: 6px; background-color: #fdecea; padding: 8px 10px; border-radius: 5px;">

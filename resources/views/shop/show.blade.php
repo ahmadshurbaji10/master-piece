@@ -115,7 +115,9 @@
                     <div class="alert alert-info mt-4">
                         <p>
                             <span>To write a review or add to cart, please </span>
-                            <a href="javascript:void(0);" onclick="openLoginModal()" class="fw-bold text-primary text-decoration-underline">Login</a>.
+                            <a href="javascript:void(0);" onclick="openLoginModal()" class="fw-bold text-primary text-decoration-underline">Login</a> or
+                            <a href="javascript:void(0);" onclick="openRegisterModal()" class="fw-bold text-primary text-decoration-underline">Register</a>.
+
                         </p>
                     </div>
                 @endguest
