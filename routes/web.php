@@ -19,6 +19,8 @@ use App\Http\Controllers\ContactController;
 |
 */
 
+Route::post('/cart/apply-coupon', [CartController::class, 'applyCoupon'])->name('cart.applyCoupon');
+
 Route::prefix('admin')->name('admin.')->middleware('isAdmin')->group(function () {
     Route::resource('orders', \App\Http\Controllers\Admin\OrderController::class);
 });

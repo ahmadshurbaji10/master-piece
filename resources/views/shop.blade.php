@@ -23,6 +23,26 @@
     <link rel="stylesheet" href="css/style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
+
+.out-of-stock {
+    opacity: 0.6;
+    pointer-events: none;
+    position: relative;
+}
+.out-of-stock::after {
+    content: 'Out of stock';
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(220, 53, 69, 0.95);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-weight: bold;
+    font-size: 14px;
+}
+
         /* Product card styles */
         .product-card {
             transition: all 0.3s;
@@ -228,8 +248,9 @@
     <div class="container">
         <div class="row">
             @forelse ($products as $product)
-                <div class="col-md-3 mb-4">
-                    <div class="card product-card h-100 shadow-sm">
+            <div class="col-md-3 mb-4">
+                <div class="card product-card h-100 shadow-sm {{ $product->stock == 0 ? 'out-of-stock' : '' }}">
+
                         <div class="product-img-container">
                             <img src="{{ asset('storage/' . $product->image_url) }}" alt="{{ $product->name }}" class="product-img">
                         </div>
@@ -255,15 +276,19 @@
 
                             <div class="d-flex justify-content-center gap-2">
                                 <a href="{{ route('shop.show', $product->id) }}" class="btn btn-outline-success btn-sm" style="border-radius: 8px; min-width: 100px;">View Details</a>
+
                                 @auth
                                     @if(auth()->user()->role === 'customer')
-                                        <form action="{{ route('cart.add', $product->id) }}" method="POST">
-                                            @csrf
-                                            <button type="submit" class="btn btn-outline-success btn-sm" style="border-radius: 8px; min-width: 100px;">Add to Cart</button>
-                                        </form>
+                                        @if($product->stock > 0)
+                                            <form action="{{ route('cart.add', $product->id) }}" method="POST">
+                                                @csrf
+                                                <button type="submit" class="btn btn-outline-success btn-sm" style="border-radius: 8px; min-width: 100px;">Add to Cart</button>
+                                            </form>
+                                        @endif
                                     @endif
                                 @endauth
                             </div>
+
                         </div>
                     </div>
                 </div>

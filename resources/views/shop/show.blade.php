@@ -83,10 +83,17 @@
                 @auth
                     @if(auth()->user()->role === 'customer')
                         <!-- Add to Cart -->
-                        <form id="add-to-cart-form" action="{{ route('cart.add', $product->id) }}" method="POST" class="mb-4">
-                            @csrf
-                            <button type="submit" class="btn btn-success px-4">🛒 Add to Cart</button>
-                        </form>
+                        @if($product->stock > 0)
+    <form id="add-to-cart-form" action="{{ route('cart.add', $product->id) }}" method="POST" class="mb-4">
+        @csrf
+        <button type="submit" class="btn btn-success px-4">🛒 Add to Cart</button>
+    </form>
+@else
+    <button class="btn btn-secondary px-4" disabled style="cursor: not-allowed; opacity: 0.7;">
+        Out of Stock
+    </button>
+@endif
+
 
                         <!-- Review Form -->
                         <form action="{{ route('reviews.store', $product->id) }}" method="POST" class="border-top pt-4">

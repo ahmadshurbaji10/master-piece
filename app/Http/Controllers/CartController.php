@@ -33,7 +33,7 @@ class CartController extends Controller
             'price' => $product->price,
             'quantity' => $currentQty + 1,
             'image_url' => $product->image_url,
-            'stock' => $product->stock, // ✅ أضف هذا السطر
+            'stock' => $product->stock,
         ];
 
         session()->put('cart', $cart);
@@ -63,7 +63,7 @@ class CartController extends Controller
 
         if (isset($cart[$id])) {
             $cart[$id]['quantity'] = $quantity;
-            $cart[$id]['stock'] = $product->stock; // ✅ أضف هذا السطر لضمان وجوده
+            $cart[$id]['stock'] = $product->stock;
             session()->put('cart', $cart);
         }
 
@@ -72,7 +72,7 @@ class CartController extends Controller
 
 
 
-    // ✅ حذف منتج من السلة
+
     public function remove(Product $product)
     {
         $cart = session()->get('cart', []);
@@ -82,7 +82,7 @@ class CartController extends Controller
         return redirect()->back()->with('success', 'Product removed from cart');
     }
 
-    // ✅ تحديث كمية منتج
+
     public function update(Request $request, Product $product)
     {
         $cart = session()->get('cart', []);
@@ -105,7 +105,7 @@ class CartController extends Controller
         return redirect()->back()->with('success', 'Cart updated');
     }
 
-    // ✅ صفحة الدفع
+
 
 
     public function applyCoupon(Request $request)
@@ -167,7 +167,7 @@ public function checkout(Request $request)
 
     $total = collect($cart)->sum(fn($item) => $item['price'] * $item['quantity']);
 
-    // التعامل مع الكوبون
+
     $discountAmount = 0;
     if ($request->filled('coupon_code')) {
         $coupon = \App\Models\Coupon::where('code', $request->coupon_code)
@@ -265,7 +265,7 @@ public function addToCart(Request $request, $id)
         "price" => $product->price,
         "quantity" => $currentQty + 1,
         "image_url" => $product->image_url,
-        "stock" => $product->stock, // ✅ مهم جدًا
+        "stock" => $product->stock,
     ];
 
     session()->put('cart', $cart);

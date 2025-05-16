@@ -73,7 +73,7 @@ class ProductController extends Controller
 
 public function shop()
 {
-    $products = Product::with('discount')->get(); // 👈 تحميل الخصم مع المنتج
+    $products = Product::with('discount')->get(); 
     return view('shop', compact('products'));
 }
 
