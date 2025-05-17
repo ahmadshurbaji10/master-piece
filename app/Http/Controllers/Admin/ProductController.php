@@ -11,40 +11,61 @@ class ProductController extends Controller
 {
     // عرض جميع المنتجات
     public function index(Request $request)
-    {
-        $query = Product::with('store')->latest();
+{
+    $query = Product::with('store')->latest();
 
-        // فلترة حسب المتجر
-        if ($request->filled('store_id')) {
-            $query->where('store_id', $request->store_id);
-        }
-
-        // فلترة حسب حالة المخزون
-        if ($request->stock_status === 'in') {
-            $query->where('stock', '>', 0);
-        } elseif ($request->stock_status === 'out') {
-            $query->where('stock', '=', 0);
-        }
-
-        // فلترة حسب تاريخ الانتهاء
-        if ($request->filled('expiry_date')) {
-            $query->whereDate('expiry_date', '<=', $request->expiry_date);
-        }
-
-        // ✅ فلترة حسب السعر من / إلى
-        if ($request->filled('price_min')) {
-            $query->where('price', '>=', $request->price_min);
-        }
-
-        if ($request->filled('price_max')) {
-            $query->where('price', '<=', $request->price_max);
-        }
-
-        $products = $query->get();
-        $stores = \App\Models\Store::all();
-
-        return view('admin.products.index', compact('products', 'stores'));
+    // 🔍 فلترة بالاسم
+    if ($request->filled('search')) {
+        $query->where('name', 'like', '%' . $request->search . '%');
     }
+
+    // 🏬 فلترة حسب المتجر
+    if ($request->filled('store_id')) {
+        $query->where('store_id', $request->store_id);
+    }
+
+    // 📦 فلترة حسب حالة المخزون
+    if ($request->stock_status === 'in') {
+        $query->where('stock', '>', 0);
+    } elseif ($request->stock_status === 'out') {
+        $query->where('stock', '=', 0);
+    }
+
+    // ⏰ فلترة حسب تاريخ الانتهاء
+    if ($request->filled('expiry_date')) {
+        $query->whereDate('expiry_date', '<=', $request->expiry_date);
+    }
+
+    // 💵 فلترة حسب السعر من / إلى
+    if ($request->filled('price_min')) {
+        $query->where('price', '>=', $request->price_min);
+    }
+
+    if ($request->filled('price_max')) {
+        $query->where('price', '<=', $request->price_max);
+    }
+
+    // ↕️ الترتيب حسب السعر أو الأحدث
+    if ($request->filled('sort')) {
+        switch ($request->sort) {
+            case 'price_asc':
+                $query->orderBy('price', 'asc');
+                break;
+            case 'price_desc':
+                $query->orderBy('price', 'desc');
+                break;
+            case 'latest':
+                $query->latest();
+                break;
+        }
+    }
+
+    $products = $query->get();
+    $stores = \App\Models\Store::all();
+
+    return view('admin.products.index', compact('products', 'stores'));
+}
+
 
 
     // عرض صفحة إضافة منتج جديد

@@ -7,7 +7,14 @@
 
 <!-- 🔍 Filter Section -->
 <div class="bg-white rounded-xl shadow-md p-6 mb-6">
-    <form method="GET" action="{{ route('admin.products.index') }}" class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
+    <form method="GET" action="{{ route('admin.products.index') }}" class="grid grid-cols-1 md:grid-cols-6 gap-4 items-end">
+        <!-- 🔍 Search by Name -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Product Name</label>
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="e.g. Rice"
+                   class="w-full p-2 rounded-md border border-gray-300 focus:border-green-500 focus:ring-1 focus:ring-green-500">
+        </div>
+
         <!-- Stock Status -->
         <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Stock Status</label>
@@ -44,6 +51,7 @@
         </div>
     </form>
 </div>
+
 
 
 <!-- 📦 Products Table Section -->
